@@ -45,6 +45,8 @@ different provenance (see below).
 | `chandigarh_24shops.geojson` | 1,346 | 3 | Point 3 | 2026-10-24T01:57Z |
 | `chandigarh_police.geojson` | 3,319 | 8 | Point 8 | 2026-10-24T03:24Z |
 | `chandigarh_bicyclepark.geojson` | 1,557 | 4 | Point 4 | 2026-10-24T01:59Z |
+| `chandigarh_blocks.geojson` (derived Phase 2) | 3,761,832 | 4,433 | Polygon 4,433 | 2026-10-24T06:00Z |
+| `chandigarh_wheelchair_points.geojson` (derived Phase 3) | 3,692 | 8 | Point 8 | 2026-10-24T07:30Z |
 
 **Coordinate assumptions.** Every file is GeoJSON, so coordinates are WGS84 (EPSG:4326),
 **[longitude, latitude]** order (GeoJSON `x,y`, not lat-lon). All lon/lat values fall in the
@@ -326,11 +328,14 @@ No files were modified. No datasets were downloaded or substituted.
 
 ## 12. Phase 3 Implementation & Verification Record (Completed 2026-10-24)
 
-- **Milestone status:** Complete. Phase 3: Profile-Specific Feature Markers.
+- **Milestone status:** Complete. Commit `b484dab` ("Phase 3: profile-specific feature markers, infrastructure linework, and interactive popups").
+- **Derived Datasets & Extraction Tooling:**
+  - Script: `scripts/generate-wheelchair-points.mjs` (registered as `npm run generate-wheelchair-points` in `package.json`).
+  - Generated: `public/data/chandigarh_wheelchair_points.geojson` containing exactly the 8 verified wheelchair point features in Chandigarh (7 facility centroids from `chandigarh_accessibility.geojson` + 1 hospital point from `chandigarh_hospitals.geojson`).
 - **Wheelchair Profile Markers & Infrastructure:**
   - **Pedestrian Walkways Line Layer (`wheelchair-paths-line`):** 745 line features (footways, paths, pedestrian areas) from `chandigarh_pedestrian.geojson`, styled in muted teal (`#00c49f`, width 1.8px, opacity 0.65). Mapped as generic walkways with honest note that accessibility is unrecorded in OSM.
   - **Steps / Stairs Barrier Layer (`wheelchair-steps-line`):** 30 line features with `highway=steps` from `chandigarh_pedestrian.geojson`, styled in warning coral/rose (`#f43f5e`, width 2.8px, dashed `[2, 2]`, opacity 0.95). 5 confirmed with `ramp: no`.
-  - **Explicit Wheelchair Accessibility Markers (`wheelchair-markers-circle`):** 8 verified locations with explicit OSM `wheelchair` tags (7 extracted from `chandigarh_accessibility.geojson` + 1 from `chandigarh_hospitals.geojson` via `scripts/generate-wheelchair-points.mjs`):
+  - **Explicit Wheelchair Accessibility Markers (`wheelchair-markers-circle`):** 8 verified locations with explicit OSM `wheelchair` tags:
     - 3 Accessible (`wheelchair: yes`): Advanced Pediatric Center, St. Peter's School, Santokh Hospital (emerald `#10b981`, radius 7.5px, white stroke).
     - 4 Limited Access (`wheelchair: limited`): Guru Nanak Public School, Rose Garden, JW Marriott Chandigarh, Government Model High School (amber `#f59e0b`, radius 7.5px, white stroke).
     - 1 Inaccessible (`wheelchair: no`): Haryana Govt. Employee Houses - Type 4 (red `#ef4444`, radius 7.5px, white stroke).
@@ -362,6 +367,7 @@ No files were modified. No datasets were downloaded or substituted.
     - Night profile: 67 hospitals, 8 police stations, 3 verified 24/7 stores. Popups verified.
     - Layer visibility switching: Instantaneous toggle between profiles; hidden layers are set to `none`.
     - 0 console errors, 0 failed network requests.
+    - Saved screenshots in `references/screenshots/`: `phase3_wheelchair.png`, `phase3_bicycle.png`, `phase3_night.png`, `phase3_popup.png`.
 
 
 
