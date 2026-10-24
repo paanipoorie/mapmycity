@@ -441,7 +441,7 @@ No files were modified. No datasets were downloaded or substituted.
 
 ## 14. Phase 5 Implementation & Verification Record (Completed 2026-10-24)
 
-- **Milestone status:** Complete. Final Integration, Validation, and Demo Readiness.
+- **Milestone status:** Complete. Commit `515e6f4` ("Phase 5: final integration, routing validation, and demo readiness").
 - **Routing Correctness & Topological Integrity:**
   - Tested origin/destination pairs across Wheelchair, Bicycle, and Night profiles. Confirmed all routes strictly follow connected OSM network LineString geometry; straight-line routing is never used as a fallback.
   - Tested identical start and destination endpoints: returns exact 0 m distance, 0 min duration, cleanly clearing or displaying zero-length metrics without erroneous edge loop calculations.
