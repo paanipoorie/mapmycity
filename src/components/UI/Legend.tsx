@@ -40,6 +40,9 @@ export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks }) => {
         <div className="legend-body">
           <p className="legend-tagline">{conf.tagline}</p>
 
+          {/* Subheading: Density Gradient */}
+          <div className="legend-subheading">Density Gradient</div>
+
           {/* Color Gradient Swatch Ramp */}
           <div className="legend-ramp-bar" role="img" aria-label="Density gradient scale">
             {conf.gradient.map((step) => (
@@ -75,6 +78,55 @@ export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks }) => {
               </div>
             ))}
           </div>
+
+          {/* Profile Feature Markers & Linework */}
+          {conf.markerLegend && conf.markerLegend.length > 0 && (
+            <div className="legend-features-section">
+              <div className="legend-subheading">Mapped Markers & Linework</div>
+              <div className="legend-feature-list" role="list">
+                {conf.markerLegend.map((item) => (
+                  <div key={item.id} className="feature-row" role="listitem">
+                    <div className="feature-symbol-col" aria-hidden="true">
+                      {item.type === 'point' && (
+                        <span
+                          className="feature-point-dot"
+                          style={{
+                            backgroundColor: item.color,
+                            boxShadow: `0 0 6px ${item.color}88`,
+                          }}
+                        />
+                      )}
+                      {item.type === 'line' && (
+                        <span
+                          className="feature-solid-line"
+                          style={{ backgroundColor: item.color }}
+                        />
+                      )}
+                      {item.type === 'dashed-line' && (
+                        <span
+                          className="feature-dashed-line"
+                          style={{ borderColor: item.color }}
+                        />
+                      )}
+                    </div>
+                    <div className="feature-info-col">
+                      <div className="feature-title-row">
+                        <span className="feature-label">{item.label}</span>
+                        {item.count !== undefined && (
+                          <span className="feature-count-badge">
+                            {item.count}
+                          </span>
+                        )}
+                      </div>
+                      {item.note && (
+                        <span className="feature-note">{item.note}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Coverage Summary Stats */}
           <div className="legend-stats">

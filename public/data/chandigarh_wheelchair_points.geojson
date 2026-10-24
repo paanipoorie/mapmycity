@@ -1,0 +1,158 @@
+{
+  "type": "FeatureCollection",
+  "name": "chandigarh_wheelchair_points",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "way/113779318",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.776297,
+          30.764444
+        ]
+      },
+      "properties": {
+        "id": "way/113779318",
+        "name": "Advanced Pediatric Center",
+        "wheelchair": "yes",
+        "category": "Wheelchair Accessibility",
+        "amenity": "yes",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/129473921",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.750783,
+          30.737827
+        ]
+      },
+      "properties": {
+        "id": "way/129473921",
+        "name": "Guru Nanak Public School (Junior Wing)",
+        "wheelchair": "limited",
+        "category": "Wheelchair Accessibility",
+        "amenity": "school",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/129473934",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.754232,
+          30.738086
+        ]
+      },
+      "properties": {
+        "id": "way/129473934",
+        "name": "St. Peter's School",
+        "wheelchair": "yes",
+        "category": "Wheelchair Accessibility",
+        "amenity": "school",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/129720601",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.781848,
+          30.746998
+        ]
+      },
+      "properties": {
+        "id": "way/129720601",
+        "name": "Rose Garden",
+        "wheelchair": "limited",
+        "category": "Wheelchair Accessibility",
+        "amenity": "park",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/242244578",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.732438,
+          30.742829
+        ]
+      },
+      "properties": {
+        "id": "way/242244578",
+        "name": "Haryana Govt. Employee Houses - Type 4",
+        "wheelchair": "no",
+        "category": "Wheelchair Accessibility",
+        "amenity": "apartments",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/577853172",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.767138,
+          30.726675
+        ]
+      },
+      "properties": {
+        "id": "way/577853172",
+        "name": "JW Marriott Chandigarh",
+        "wheelchair": "limited",
+        "category": "Wheelchair Accessibility",
+        "amenity": "yes",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "way/1092565089",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.741105,
+          30.735177
+        ]
+      },
+      "properties": {
+        "id": "way/1092565089",
+        "name": "Government Model High School",
+        "wheelchair": "limited",
+        "category": "Wheelchair Accessibility",
+        "amenity": "school",
+        "original_geometry": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "node/3404982354",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.748988,
+          30.747863
+        ]
+      },
+      "properties": {
+        "id": "node/3404982354",
+        "name": "Santokh Hospital",
+        "wheelchair": "yes",
+        "category": "Wheelchair Accessibility",
+        "amenity": "hospital",
+        "original_geometry": "Point"
+      }
+    }
+  ]
+}

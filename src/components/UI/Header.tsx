@@ -17,11 +17,11 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="hud-panel top-left" aria-label="Map Overview">
       <div className="brand-group">
         <h1 className="brand-title">MapMyCity</h1>
-        <span className="phase-pill">Phase 2: Blocks</span>
+        <span className="phase-pill">Phase 3: Feature Markers</span>
       </div>
 
       <p className="hud-description">
-        Road-bounded urban blocks with profile-specific feature density gradients.
+        3D urban context with interactive profile-specific markers, infrastructure linework, and block density.
       </p>
 
       <div className="hud-meta">

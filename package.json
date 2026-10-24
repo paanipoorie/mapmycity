@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-blocks": "node scripts/generate-blocks.mjs"
+    "generate-blocks": "node scripts/generate-blocks.mjs",
+    "generate-wheelchair-points": "node scripts/generate-wheelchair-points.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.15.0",

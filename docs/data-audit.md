@@ -324,4 +324,44 @@ No files were modified. No datasets were downloaded or substituted.
   - OSM Data Sparsity: Only 4 bicycle parking points and 4 verified 24/7 stores exist in the mapped data for the entire city. The gradient strictly reflects mapped presence in OpenStreetMap, not real-world safety or completeness.
   - Path Mode: Intentionally disabled per Phase 2 scope; network graph routing is slated for Phase 4.
 
+## 12. Phase 3 Implementation & Verification Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete. Phase 3: Profile-Specific Feature Markers.
+- **Wheelchair Profile Markers & Infrastructure:**
+  - **Pedestrian Walkways Line Layer (`wheelchair-paths-line`):** 745 line features (footways, paths, pedestrian areas) from `chandigarh_pedestrian.geojson`, styled in muted teal (`#00c49f`, width 1.8px, opacity 0.65). Mapped as generic walkways with honest note that accessibility is unrecorded in OSM.
+  - **Steps / Stairs Barrier Layer (`wheelchair-steps-line`):** 30 line features with `highway=steps` from `chandigarh_pedestrian.geojson`, styled in warning coral/rose (`#f43f5e`, width 2.8px, dashed `[2, 2]`, opacity 0.95). 5 confirmed with `ramp: no`.
+  - **Explicit Wheelchair Accessibility Markers (`wheelchair-markers-circle`):** 8 verified locations with explicit OSM `wheelchair` tags (7 extracted from `chandigarh_accessibility.geojson` + 1 from `chandigarh_hospitals.geojson` via `scripts/generate-wheelchair-points.mjs`):
+    - 3 Accessible (`wheelchair: yes`): Advanced Pediatric Center, St. Peter's School, Santokh Hospital (emerald `#10b981`, radius 7.5px, white stroke).
+    - 4 Limited Access (`wheelchair: limited`): Guru Nanak Public School, Rose Garden, JW Marriott Chandigarh, Government Model High School (amber `#f59e0b`, radius 7.5px, white stroke).
+    - 1 Inaccessible (`wheelchair: no`): Haryana Govt. Employee Houses - Type 4 (red `#ef4444`, radius 7.5px, white stroke).
+- **Bicycle Profile Markers & Infrastructure:**
+  - **Dedicated Cycleways Line Layer (`bicycle-dedicated-line`):** 12 line features from `chandigarh_cycleways.geojson` (`highway=cycleway`), styled in bright gold (`#fbbf24`, width 3.2px, opacity 0.95).
+  - **Corridor Cycle Tracks & Lanes (`bicycle-corridor-tracks-line`):** 784 line segments filtered from already-loaded `chandigarh-osm` source matching `cycleway:left`, `cycleway:right`, `cycleway:both`, or `cycleway`, styled in amber (`#f59e0b`, width 2.0px, opacity 0.8).
+  - **Bicycle Parking Points (`bicycle-parking-circle`):** 4 verified parking locations from `chandigarh_bicyclepark.geojson` (`amenity=bicycle_parking`), styled in amber (`#f59e0b`, radius 8.0px, white stroke 2.2px).
+- **Night Profile Markers:**
+  - **Hospitals & Medical Centers (`night-hospitals-circle`):** 67 point features from `chandigarh_hospitals.geojson` (`amenity=hospital`), styled in ruby red (`#ef4444`, radius 6.5px, white stroke 1.8px). 4 explicitly tagged `emergency: yes`.
+  - **Police Stations (`night-police-circle`):** 8 point features from `chandigarh_police.geojson` (`amenity=police`), styled in police blue (`#3b82f6`, radius 7.0px, white stroke 2.0px).
+  - **Verified 24-Hour Stores (`night-24shops-circle`):** 3 verified point features from `chandigarh_24shops.geojson` with explicit `opening_hours: 24/7` (Nik Baker's, 24 Seven, 24Seven), styled in neon lilac (`#c084fc`, radius 8.5px, white stroke 2.5px). No generic shops are marked as 24-hour.
+- **Layer Architecture & Occlusion Management:**
+  - Ground plane: Block fills and outlines below 3D buildings.
+  - Infrastructure lines (pedestrian paths, steps, cycleways): Inserted before `BUILDINGS_LAYER_ID` so buildings extrude cleanly around streets.
+  - 3D Buildings: Extruded using documented baseline (`building:levels × 3m`, 6m fallback).
+  - Thematic Markers (circles): Positioned above 3D extrusions with `circle-pitch-alignment: 'viewport'`, ensuring markers remain visible, facing the camera, and clickable without building occlusion.
+- **Interactivity & Popups:**
+  - Built custom dark-themed MapLibre popups (`.mapmycity-popup`) with category badges, feature names, key-value attributes, and source dataset provenance.
+  - Hover cursor shifts to `pointer` over interactive markers and infrastructure.
+  - Popups dismiss cleanly when switching profiles or clicking away.
+- **Dynamic Legend:**
+  - Synchronized with active profile to display both the density gradient ramp and the active profile's mapped markers and linework with exact counts, colors, and honest descriptions.
+- **Browser & Quality Verification:**
+  - Lint: `npm run lint` clean (0 errors, 0 warnings).
+  - Build: `npm run build` clean (TypeScript + Vite production bundle).
+  - Browser testing: Verified via Playwright at `http://127.0.0.1:5199/`:
+    - Wheelchair profile: 745 walkways, 30 steps (5 confirmed ramp: no), 8 explicit wheelchair status points (3 yes, 4 limited, 1 no). Popups verified.
+    - Bicycle profile: 12 dedicated cycleways, 784 corridor cycle tracks, 4 bicycle parking points. Popups verified.
+    - Night profile: 67 hospitals, 8 police stations, 3 verified 24/7 stores. Popups verified.
+    - Layer visibility switching: Instantaneous toggle between profiles; hidden layers are set to `none`.
+    - 0 console errors, 0 failed network requests.
+
+
 

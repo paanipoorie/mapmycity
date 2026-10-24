@@ -18,6 +18,15 @@ export interface GradientStep {
   color: string;
 }
 
+export interface MarkerLegendItem {
+  id: string;
+  label: string;
+  count?: number;
+  color: string;
+  type: 'point' | 'line' | 'dashed-line';
+  note?: string;
+}
+
 export interface ProfileMeta {
   id: UserProfile;
   label: string;
@@ -28,5 +37,6 @@ export interface ProfileMeta {
   densityUnit: string;
   mappedBlocksCount: number;
   gradient: GradientStep[];
+  markerLegend: MarkerLegendItem[];
   dataDescription: string;
 }

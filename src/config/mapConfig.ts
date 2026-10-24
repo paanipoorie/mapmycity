@@ -96,6 +96,78 @@ export const BLOCKS_SOURCE_ID = 'chandigarh-blocks';
 export const BLOCKS_FILL_LAYER_ID = 'chandigarh-blocks-fill';
 export const BLOCKS_LINE_LAYER_ID = 'chandigarh-blocks-outline';
 
+// Phase 3 Feature Sources
+export const PEDESTRIAN_GEOJSON_DATA_URL = '/data/chandigarh_pedestrian.geojson';
+export const PEDESTRIAN_SOURCE_ID = 'chandigarh-pedestrian';
+
+export const WHEELCHAIR_POINTS_GEOJSON_DATA_URL = '/data/chandigarh_wheelchair_points.geojson';
+export const WHEELCHAIR_POINTS_SOURCE_ID = 'chandigarh-wheelchair-points';
+
+export const CYCLEWAYS_GEOJSON_DATA_URL = '/data/chandigarh_cycleways.geojson';
+export const CYCLEWAYS_SOURCE_ID = 'chandigarh-cycleways';
+
+export const BICYCLE_PARKING_GEOJSON_DATA_URL = '/data/chandigarh_bicyclepark.geojson';
+export const BICYCLE_PARKING_SOURCE_ID = 'chandigarh-bicyclepark';
+
+export const HOSPITALS_GEOJSON_DATA_URL = '/data/chandigarh_hospitals.geojson';
+export const HOSPITALS_SOURCE_ID = 'chandigarh-hospitals';
+
+export const POLICE_GEOJSON_DATA_URL = '/data/chandigarh_police.geojson';
+export const POLICE_SOURCE_ID = 'chandigarh-police';
+
+export const SHOPS24_GEOJSON_DATA_URL = '/data/chandigarh_24shops.geojson';
+export const SHOPS24_SOURCE_ID = 'chandigarh-24shops';
+
+// Phase 3 Feature Layer IDs
+// Wheelchair Profile Layers
+export const WHEELCHAIR_PATHS_LAYER_ID = 'wheelchair-paths-line';
+export const WHEELCHAIR_STEPS_LAYER_ID = 'wheelchair-steps-line';
+export const WHEELCHAIR_POINTS_LAYER_ID = 'wheelchair-markers-circle';
+
+// Bicycle Profile Layers
+export const BICYCLE_CORRIDOR_TRACKS_LAYER_ID = 'bicycle-corridor-tracks-line';
+export const BICYCLE_DEDICATED_LAYER_ID = 'bicycle-dedicated-line';
+export const BICYCLE_PARKING_LAYER_ID = 'bicycle-parking-circle';
+
+// Night Profile Layers
+export const NIGHT_HOSPITALS_LAYER_ID = 'night-hospitals-circle';
+export const NIGHT_POLICE_LAYER_ID = 'night-police-circle';
+export const NIGHT_24SHOPS_LAYER_ID = 'night-24shops-circle';
+
+/**
+ * Layer groupings by profile to allow instantaneous visibility toggles.
+ */
+export const PROFILE_LAYERS: Record<UserProfile, string[]> = {
+  wheelchair: [
+    WHEELCHAIR_PATHS_LAYER_ID,
+    WHEELCHAIR_STEPS_LAYER_ID,
+    WHEELCHAIR_POINTS_LAYER_ID,
+  ],
+  bicycle: [
+    BICYCLE_CORRIDOR_TRACKS_LAYER_ID,
+    BICYCLE_DEDICATED_LAYER_ID,
+    BICYCLE_PARKING_LAYER_ID,
+  ],
+  night: [
+    NIGHT_HOSPITALS_LAYER_ID,
+    NIGHT_POLICE_LAYER_ID,
+    NIGHT_24SHOPS_LAYER_ID,
+  ],
+};
+
+/**
+ * Thematic feature layers that support click-for-popup inspection.
+ */
+export const INTERACTIVE_FEATURE_LAYERS = [
+  WHEELCHAIR_POINTS_LAYER_ID,
+  WHEELCHAIR_STEPS_LAYER_ID,
+  BICYCLE_PARKING_LAYER_ID,
+  BICYCLE_DEDICATED_LAYER_ID,
+  NIGHT_HOSPITALS_LAYER_ID,
+  NIGHT_POLICE_LAYER_ID,
+  NIGHT_24SHOPS_LAYER_ID,
+];
+
 /**
  * Profile-specific cartographic configurations.
  * Formulated with restrained dark tones inspired by Blockprint.
@@ -119,6 +191,48 @@ export const PROFILE_CONFIGS: Record<UserProfile, ProfileMeta> = {
       { tier: 3, label: 'High', range: '25 – 50', color: '#00a896' },
       { tier: 4, label: 'Very High', range: '> 50', color: '#02c39a' },
     ],
+    markerLegend: [
+      {
+        id: 'wc-yes',
+        label: 'Verified Accessible (yes)',
+        count: 3,
+        color: '#10b981',
+        type: 'point',
+        note: 'Explicit wheelchair:yes tag (e.g. Pediatric Center, Schools, Hospitals)',
+      },
+      {
+        id: 'wc-limited',
+        label: 'Limited Accessibility',
+        count: 4,
+        color: '#f59e0b',
+        type: 'point',
+        note: 'Explicit wheelchair:limited tag (e.g. Rose Garden, Hotels)',
+      },
+      {
+        id: 'wc-no',
+        label: 'Inaccessible / No Wheelchair',
+        count: 1,
+        color: '#ef4444',
+        type: 'point',
+        note: 'Explicit wheelchair:no tag (e.g. Type 4 Housing)',
+      },
+      {
+        id: 'wc-paths',
+        label: 'Pedestrian Walkways',
+        count: 745,
+        color: '#00c49f',
+        type: 'line',
+        note: 'Sidewalks & footways (accessibility unrecorded in OSM)',
+      },
+      {
+        id: 'wc-steps',
+        label: 'Steps / Stairs',
+        count: 30,
+        color: '#f43f5e',
+        type: 'dashed-line',
+        note: 'Physical barriers for wheelchairs (5 confirmed ramp: no)',
+      },
+    ],
   },
   bicycle: {
     id: 'bicycle',
@@ -138,6 +252,32 @@ export const PROFILE_CONFIGS: Record<UserProfile, ProfileMeta> = {
       { tier: 3, label: 'High', range: '30 – 80', color: '#e68e19' },
       { tier: 4, label: 'Very High', range: '> 80', color: '#fbbf24' },
     ],
+    markerLegend: [
+      {
+        id: 'bike-parking',
+        label: 'Bicycle Parking',
+        count: 4,
+        color: '#f59e0b',
+        type: 'point',
+        note: 'Verified bicycle stands & basement bike parking',
+      },
+      {
+        id: 'bike-dedicated',
+        label: 'Dedicated Cycleways',
+        count: 12,
+        color: '#fbbf24',
+        type: 'line',
+        note: 'Segregated off-street cycling paths',
+      },
+      {
+        id: 'bike-tracks',
+        label: 'Corridor Cycle Tracks & Lanes',
+        count: 784,
+        color: '#f59e0b',
+        type: 'line',
+        note: 'Road-side cycleway tags (left/right/both)',
+      },
+    ],
   },
   night: {
     id: 'night',
@@ -156,6 +296,32 @@ export const PROFILE_CONFIGS: Record<UserProfile, ProfileMeta> = {
       { tier: 2, label: 'Moderate', range: '20 – 50', color: '#63339f' },
       { tier: 3, label: 'High', range: '50 – 100', color: '#8e4ec6' },
       { tier: 4, label: 'Very High', range: '> 100', color: '#c084fc' },
+    ],
+    markerLegend: [
+      {
+        id: 'night-hospitals',
+        label: 'Hospitals & Medical Centers',
+        count: 67,
+        color: '#ef4444',
+        type: 'point',
+        note: 'Hospitals and trauma centers (4 tagged emergency: yes)',
+      },
+      {
+        id: 'night-police',
+        label: 'Police Stations',
+        count: 8,
+        color: '#3b82f6',
+        type: 'point',
+        note: 'Law enforcement stations & railway police',
+      },
+      {
+        id: 'night-24shops',
+        label: 'Verified 24/7 Stores',
+        count: 3,
+        color: '#c084fc',
+        type: 'point',
+        note: 'Explicitly verified opening_hours: 24/7 (Nik Baker\'s, 24 Seven)',
+      },
     ],
   },
 };

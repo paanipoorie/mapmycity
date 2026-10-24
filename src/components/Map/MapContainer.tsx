@@ -4,8 +4,10 @@ import {
   NavigationControl,
   ScaleControl,
   AttributionControl,
+  Popup,
   setWorkerUrl,
   type ErrorEvent,
+  type MapLayerMouseEvent,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreglWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
@@ -23,6 +25,31 @@ import {
   BLOCKS_SOURCE_ID,
   BLOCKS_FILL_LAYER_ID,
   BLOCKS_LINE_LAYER_ID,
+  PEDESTRIAN_GEOJSON_DATA_URL,
+  PEDESTRIAN_SOURCE_ID,
+  WHEELCHAIR_POINTS_GEOJSON_DATA_URL,
+  WHEELCHAIR_POINTS_SOURCE_ID,
+  CYCLEWAYS_GEOJSON_DATA_URL,
+  CYCLEWAYS_SOURCE_ID,
+  BICYCLE_PARKING_GEOJSON_DATA_URL,
+  BICYCLE_PARKING_SOURCE_ID,
+  HOSPITALS_GEOJSON_DATA_URL,
+  HOSPITALS_SOURCE_ID,
+  POLICE_GEOJSON_DATA_URL,
+  POLICE_SOURCE_ID,
+  SHOPS24_GEOJSON_DATA_URL,
+  SHOPS24_SOURCE_ID,
+  WHEELCHAIR_PATHS_LAYER_ID,
+  WHEELCHAIR_STEPS_LAYER_ID,
+  WHEELCHAIR_POINTS_LAYER_ID,
+  BICYCLE_CORRIDOR_TRACKS_LAYER_ID,
+  BICYCLE_DEDICATED_LAYER_ID,
+  BICYCLE_PARKING_LAYER_ID,
+  NIGHT_HOSPITALS_LAYER_ID,
+  NIGHT_POLICE_LAYER_ID,
+  NIGHT_24SHOPS_LAYER_ID,
+  PROFILE_LAYERS,
+  INTERACTIVE_FEATURE_LAYERS,
   BUILDING_HEIGHT_EXPRESSION,
   BUILDING_COLOR_EXPRESSION,
   getBlockFillColorExpression,
@@ -53,9 +80,149 @@ function isWebGLSupported(): boolean {
   }
 }
 
+function escapeHtml(str: unknown): string {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function createFeaturePopupHtml(
+  layerId: string,
+  p: Record<string, unknown>
+): string {
+  let badgeText = 'Feature';
+  let badgeBg = '#4b5563';
+  let title = p.name ? escapeHtml(p.name) : '';
+  const rows: Array<{ key: string; val: string }> = [];
+  let note = '';
+
+  switch (layerId) {
+    case WHEELCHAIR_POINTS_LAYER_ID: {
+      const wc = String(p.wheelchair || 'unspecified');
+      if (wc === 'yes') {
+        badgeText = 'Wheelchair: Accessible';
+        badgeBg = '#10b981';
+      } else if (wc === 'limited') {
+        badgeText = 'Wheelchair: Limited Access';
+        badgeBg = '#f59e0b';
+      } else {
+        badgeText = 'Wheelchair: Inaccessible';
+        badgeBg = '#ef4444';
+      }
+      if (!title) title = 'Accessibility Facility';
+      rows.push({ key: 'Status', val: `wheelchair: ${escapeHtml(wc)}` });
+      if (p.amenity) rows.push({ key: 'Facility', val: escapeHtml(p.amenity) });
+      note = 'Verified explicit OSM wheelchair tag';
+      break;
+    }
+    case WHEELCHAIR_STEPS_LAYER_ID: {
+      badgeText = 'Steps / Stairs';
+      badgeBg = '#f43f5e';
+      if (!title) title = 'Pedestrian Steps';
+      rows.push({
+        key: 'Barrier',
+        val: 'Stairs (inaccessible for wheelchairs)',
+      });
+      rows.push({
+        key: 'Ramp',
+        val: p.ramp === 'no' ? 'Confirmed: No Ramp' : 'Unrecorded in OSM',
+      });
+      if (p.handrail) rows.push({ key: 'Handrail', val: escapeHtml(p.handrail) });
+      if (p.incline) rows.push({ key: 'Incline', val: escapeHtml(p.incline) });
+      note = 'chandigarh_pedestrian.geojson';
+      break;
+    }
+    case BICYCLE_PARKING_LAYER_ID: {
+      badgeText = 'Bicycle Parking';
+      badgeBg = '#f59e0b';
+      if (!title)
+        title = p.operator
+          ? escapeHtml(p.operator)
+          : 'Bicycle Parking Facility';
+      rows.push({ key: 'Type', val: 'amenity: bicycle_parking' });
+      rows.push({
+        key: 'Covered',
+        val: p.covered === 'yes' ? 'Covered (Yes)' : 'Not specified',
+      });
+      if (p.operator) rows.push({ key: 'Operator', val: escapeHtml(p.operator) });
+      note = 'chandigarh_bicyclepark.geojson';
+      break;
+    }
+    case BICYCLE_DEDICATED_LAYER_ID: {
+      badgeText = 'Dedicated Cycleway';
+      badgeBg = '#fbbf24';
+      if (!title) title = 'Segregated Cycle Track';
+      rows.push({ key: 'Type', val: 'highway: cycleway' });
+      if (p.surface) rows.push({ key: 'Surface', val: escapeHtml(p.surface) });
+      if (p.oneway) rows.push({ key: 'One-Way', val: escapeHtml(p.oneway) });
+      if (p.sport) rows.push({ key: 'Sport', val: escapeHtml(p.sport) });
+      note = 'chandigarh_cycleways.geojson';
+      break;
+    }
+    case NIGHT_HOSPITALS_LAYER_ID: {
+      badgeText = 'Hospital & Medical';
+      badgeBg = '#ef4444';
+      if (!title) title = 'Hospital (Unnamed in OSM)';
+      rows.push({
+        key: 'Emergency',
+        val:
+          p.emergency === 'yes'
+            ? '24/7 Emergency Service (Yes)'
+            : 'Unspecified in OSM',
+      });
+      if (p.wheelchair)
+        rows.push({ key: 'Wheelchair', val: escapeHtml(p.wheelchair) });
+      note = 'chandigarh_hospitals.geojson';
+      break;
+    }
+    case NIGHT_POLICE_LAYER_ID: {
+      badgeText = 'Police Station';
+      badgeBg = '#3b82f6';
+      if (!title) title = 'Police Station (Unnamed in OSM)';
+      rows.push({ key: 'Facility', val: 'amenity: police' });
+      note = 'chandigarh_police.geojson';
+      break;
+    }
+    case NIGHT_24SHOPS_LAYER_ID: {
+      badgeText = 'Verified 24/7 Store';
+      badgeBg = '#a855f7';
+      if (!title) title = '24-Hour Convenience Store';
+      rows.push({ key: 'Hours', val: 'opening_hours: 24/7 (Verified)' });
+      if (p.shop) rows.push({ key: 'Shop Type', val: escapeHtml(p.shop) });
+      note = 'chandigarh_24shops.geojson (strictly verified 24/7 hours)';
+      break;
+    }
+  }
+
+  const rowsHtml = rows
+    .map(
+      (r) => `<div class="popup-prop-item">
+        <span class="popup-prop-key">${r.key}:</span>
+        <span class="popup-prop-val">${r.val}</span>
+      </div>`
+    )
+    .join('');
+
+  return `
+    <div class="popup-card">
+      <span class="popup-badge" style="background-color: ${badgeBg}; color: #ffffff;">${badgeText}</span>
+      <h3 class="popup-title">${title}</h3>
+      <div class="popup-prop-list">
+        ${rowsHtml}
+      </div>
+      ${note ? `<div class="popup-note">${note}</div>` : ''}
+    </div>
+  `;
+}
+
 export const MapContainer: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const popupRef = useRef<Popup | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [buildingCount, setBuildingCount] = useState<number | null>(null);
@@ -101,11 +268,17 @@ export const MapContainer: React.FC = () => {
     setRetryCount((prev) => prev + 1);
   }, []);
 
-  // Update map layer paint properties when active profile changes
+  // Update map layer paint properties and layer visibility when active profile changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
 
+    // 1. Close any open popup on profile switch
+    if (popupRef.current) {
+      popupRef.current.remove();
+    }
+
+    // 2. Update block fill colors & opacity
     if (map.getLayer(BLOCKS_FILL_LAYER_ID)) {
       map.setPaintProperty(
         BLOCKS_FILL_LAYER_ID,
@@ -119,12 +292,25 @@ export const MapContainer: React.FC = () => {
       );
     }
 
+    // 3. Update block outline colors
     if (map.getLayer(BLOCKS_LINE_LAYER_ID)) {
       map.setPaintProperty(
         BLOCKS_LINE_LAYER_ID,
         'line-color',
         getBlockLineColorExpression(activeProfile)
       );
+    }
+
+    // 4. Toggle profile-specific line and marker layers
+    const allProfiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
+    for (const p of allProfiles) {
+      const isVisible = p === activeProfile ? 'visible' : 'none';
+      const layers = PROFILE_LAYERS[p] || [];
+      for (const layerId of layers) {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(layerId, 'visibility', isVisible);
+        }
+      }
     }
   }, [activeProfile]);
 
@@ -153,6 +339,9 @@ export const MapContainer: React.FC = () => {
       });
 
       mapRef.current = map;
+      if (typeof window !== 'undefined') {
+        (window as unknown as { _map?: Map })._map = map;
+      }
 
       // Add navigation controls (zoom, compass, pitch visualize)
       map.addControl(
@@ -202,7 +391,7 @@ export const MapContainer: React.FC = () => {
         }
       });
 
-      // Once base map style is loaded, load GeoJSON blocks & buildings
+      // Once base map style is loaded, load GeoJSON data sources
       map.on('load', async () => {
         if (!isMounted || !map) return;
 
@@ -220,22 +409,78 @@ export const MapContainer: React.FC = () => {
         });
 
         try {
-          // Fetch blocks and 3D buildings concurrently
-          const [blocksRes, buildingsRes] = await Promise.all([
+          // Fetch blocks, buildings, and profile feature datasets concurrently
+          const [
+            blocksRes,
+            buildingsRes,
+            pedestrianRes,
+            wheelchairPointsRes,
+            cyclewaysRes,
+            bicycleParkRes,
+            hospitalsRes,
+            policeRes,
+            shops24Res,
+          ] = await Promise.all([
             fetch(BLOCKS_GEOJSON_DATA_URL),
             fetch(BUILDINGS_GEOJSON_DATA_URL),
+            fetch(PEDESTRIAN_GEOJSON_DATA_URL),
+            fetch(WHEELCHAIR_POINTS_GEOJSON_DATA_URL),
+            fetch(CYCLEWAYS_GEOJSON_DATA_URL),
+            fetch(BICYCLE_PARKING_GEOJSON_DATA_URL),
+            fetch(HOSPITALS_GEOJSON_DATA_URL),
+            fetch(POLICE_GEOJSON_DATA_URL),
+            fetch(SHOPS24_GEOJSON_DATA_URL),
           ]);
 
-          if (!blocksRes.ok) {
+          if (!blocksRes.ok)
             throw new Error(`Failed to load blocks: HTTP ${blocksRes.status}`);
-          }
-          if (!buildingsRes.ok) {
+          if (!buildingsRes.ok)
             throw new Error(`Failed to load buildings: HTTP ${buildingsRes.status}`);
-          }
+          if (!pedestrianRes.ok)
+            throw new Error(
+              `Failed to load pedestrian data: HTTP ${pedestrianRes.status}`
+            );
+          if (!wheelchairPointsRes.ok)
+            throw new Error(
+              `Failed to load wheelchair points: HTTP ${wheelchairPointsRes.status}`
+            );
+          if (!cyclewaysRes.ok)
+            throw new Error(
+              `Failed to load cycleways: HTTP ${cyclewaysRes.status}`
+            );
+          if (!bicycleParkRes.ok)
+            throw new Error(
+              `Failed to load bicycle parking: HTTP ${bicycleParkRes.status}`
+            );
+          if (!hospitalsRes.ok)
+            throw new Error(
+              `Failed to load hospitals: HTTP ${hospitalsRes.status}`
+            );
+          if (!policeRes.ok)
+            throw new Error(`Failed to load police: HTTP ${policeRes.status}`);
+          if (!shops24Res.ok)
+            throw new Error(`Failed to load 24h shops: HTTP ${shops24Res.status}`);
 
-          const [blocksData, buildingsData] = await Promise.all([
+          const [
+            blocksData,
+            buildingsData,
+            pedestrianData,
+            wheelchairPointsData,
+            cyclewaysData,
+            bicycleParkData,
+            hospitalsData,
+            policeData,
+            shops24Data,
+          ] = await Promise.all([
             blocksRes.json(),
             buildingsRes.json(),
+            pedestrianRes.json(),
+            wheelchairPointsRes.json(),
+            cyclewaysRes.json(),
+            bicycleParkRes.json(),
+            hospitalsRes.json(),
+            policeRes.json(),
+            shops24Res.json(),
           ]);
 
           if (!isMounted) return;
@@ -266,12 +511,14 @@ export const MapContainer: React.FC = () => {
           );
           setBuildingCount(bCount);
 
-          // Find first symbol layer to insert custom data below street labels
+          // Find first symbol layer to insert ground/line layers below street labels
           const firstSymbolId = map
             .getStyle()
             .layers?.find((l) => l.type === 'symbol')?.id;
 
-          // 1. Add Blocks Source & Layers (ground plane)
+          // -------------------------------------------------------------
+          // 1. Ground Sources & Layers (Blocks)
+          // -------------------------------------------------------------
           if (!map.getSource(BLOCKS_SOURCE_ID)) {
             map.addSource(BLOCKS_SOURCE_ID, {
               type: 'geojson',
@@ -310,7 +557,85 @@ export const MapContainer: React.FC = () => {
             );
           }
 
-          // 2. Add 3D Building Extrusion Source & Layer (elevated plane)
+          // -------------------------------------------------------------
+          // 2. Line Infrastructure Sources & Layers (placed below 3D buildings)
+          // -------------------------------------------------------------
+          // Pedestrian Source
+          if (!map.getSource(PEDESTRIAN_SOURCE_ID)) {
+            map.addSource(PEDESTRIAN_SOURCE_ID, {
+              type: 'geojson',
+              data: pedestrianData,
+            });
+          }
+
+          // Cycleways Source
+          if (!map.getSource(CYCLEWAYS_SOURCE_ID)) {
+            map.addSource(CYCLEWAYS_SOURCE_ID, {
+              type: 'geojson',
+              data: cyclewaysData,
+            });
+          }
+
+          // Wheelchair Walkways Line Layer
+          if (!map.getLayer(WHEELCHAIR_PATHS_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: WHEELCHAIR_PATHS_LAYER_ID,
+                type: 'line',
+                source: PEDESTRIAN_SOURCE_ID,
+                filter: [
+                  'all',
+                  ['==', ['geometry-type'], 'LineString'],
+                  ['!=', ['get', 'highway'], 'steps'],
+                ],
+                layout: {
+                  visibility:
+                    profileRef.current === 'wheelchair' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'round',
+                },
+                paint: {
+                  'line-color': '#00c49f',
+                  'line-width': 1.8,
+                  'line-opacity': 0.65,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // Wheelchair Steps Line Layer (Warning / Barrier)
+          if (!map.getLayer(WHEELCHAIR_STEPS_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: WHEELCHAIR_STEPS_LAYER_ID,
+                type: 'line',
+                source: PEDESTRIAN_SOURCE_ID,
+                filter: [
+                  'all',
+                  ['==', ['geometry-type'], 'LineString'],
+                  ['==', ['get', 'highway'], 'steps'],
+                ],
+                layout: {
+                  visibility:
+                    profileRef.current === 'wheelchair' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'butt',
+                },
+                paint: {
+                  'line-color': '#f43f5e',
+                  'line-width': 2.8,
+                  'line-dasharray': [2, 2],
+                  'line-opacity': 0.95,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // -------------------------------------------------------------
+          // 3. 3D Building Extrusion Source & Layer (elevated plane)
+          // -------------------------------------------------------------
           if (!map.getSource(BUILDINGS_SOURCE_ID)) {
             map.addSource(BUILDINGS_SOURCE_ID, {
               type: 'geojson',
@@ -318,13 +643,72 @@ export const MapContainer: React.FC = () => {
             });
           }
 
+          // Bicycle Corridor Tracks Line Layer (sourced from chandigarh-osm)
+          if (!map.getLayer(BICYCLE_CORRIDOR_TRACKS_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: BICYCLE_CORRIDOR_TRACKS_LAYER_ID,
+                type: 'line',
+                source: BUILDINGS_SOURCE_ID,
+                filter: [
+                  'all',
+                  ['==', ['geometry-type'], 'LineString'],
+                  [
+                    'any',
+                    ['has', 'cycleway:left'],
+                    ['has', 'cycleway:right'],
+                    ['has', 'cycleway:both'],
+                    ['has', 'cycleway'],
+                  ],
+                  ['!=', ['get', 'highway'], 'cycleway'],
+                ],
+                layout: {
+                  visibility:
+                    profileRef.current === 'bicycle' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'round',
+                },
+                paint: {
+                  'line-color': '#f59e0b',
+                  'line-width': 2.0,
+                  'line-opacity': 0.8,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // Bicycle Dedicated Cycleways Line Layer
+          if (!map.getLayer(BICYCLE_DEDICATED_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: BICYCLE_DEDICATED_LAYER_ID,
+                type: 'line',
+                source: CYCLEWAYS_SOURCE_ID,
+                layout: {
+                  visibility:
+                    profileRef.current === 'bicycle' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'round',
+                },
+                paint: {
+                  'line-color': '#fbbf24',
+                  'line-width': 3.2,
+                  'line-opacity': 0.95,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // 3D Buildings
           if (!map.getLayer(BUILDINGS_LAYER_ID)) {
             map.addLayer(
               {
                 id: BUILDINGS_LAYER_ID,
                 type: 'fill-extrusion',
                 source: BUILDINGS_SOURCE_ID,
-                filter: ['all', ['==', '$type', 'Polygon'], ['has', 'building']],
+                filter: ['all', ['==', ['geometry-type'], 'Polygon'], ['has', 'building']],
                 paint: {
                   'fill-extrusion-color': BUILDING_COLOR_EXPRESSION,
                   'fill-extrusion-height': BUILDING_HEIGHT_EXPRESSION,
@@ -337,6 +721,186 @@ export const MapContainer: React.FC = () => {
             );
           }
 
+          // -------------------------------------------------------------
+          // 4. Point Marker Sources & Layers (rendered above 3D extrusions)
+          // -------------------------------------------------------------
+          // Wheelchair Accessibility Points
+          if (!map.getSource(WHEELCHAIR_POINTS_SOURCE_ID)) {
+            map.addSource(WHEELCHAIR_POINTS_SOURCE_ID, {
+              type: 'geojson',
+              data: wheelchairPointsData,
+            });
+          }
+
+          if (!map.getLayer(WHEELCHAIR_POINTS_LAYER_ID)) {
+            map.addLayer({
+              id: WHEELCHAIR_POINTS_LAYER_ID,
+              type: 'circle',
+              source: WHEELCHAIR_POINTS_SOURCE_ID,
+              layout: {
+                visibility:
+                  profileRef.current === 'wheelchair' ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 7.5,
+                'circle-color': [
+                  'match',
+                  ['get', 'wheelchair'],
+                  'yes',
+                  '#10b981',
+                  'limited',
+                  '#f59e0b',
+                  'no',
+                  '#ef4444',
+                  '#6b7280',
+                ],
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2.0,
+                'circle-pitch-alignment': 'viewport',
+              },
+            });
+          }
+
+          // Bicycle Parking Points
+          if (!map.getSource(BICYCLE_PARKING_SOURCE_ID)) {
+            map.addSource(BICYCLE_PARKING_SOURCE_ID, {
+              type: 'geojson',
+              data: bicycleParkData,
+            });
+          }
+
+          if (!map.getLayer(BICYCLE_PARKING_LAYER_ID)) {
+            map.addLayer({
+              id: BICYCLE_PARKING_LAYER_ID,
+              type: 'circle',
+              source: BICYCLE_PARKING_SOURCE_ID,
+              layout: {
+                visibility:
+                  profileRef.current === 'bicycle' ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 8.0,
+                'circle-color': '#f59e0b',
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2.2,
+                'circle-pitch-alignment': 'viewport',
+              },
+            });
+          }
+
+          // Hospitals Points
+          if (!map.getSource(HOSPITALS_SOURCE_ID)) {
+            map.addSource(HOSPITALS_SOURCE_ID, {
+              type: 'geojson',
+              data: hospitalsData,
+            });
+          }
+
+          if (!map.getLayer(NIGHT_HOSPITALS_LAYER_ID)) {
+            map.addLayer({
+              id: NIGHT_HOSPITALS_LAYER_ID,
+              type: 'circle',
+              source: HOSPITALS_SOURCE_ID,
+              layout: {
+                visibility: profileRef.current === 'night' ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 6.5,
+                'circle-color': '#ef4444',
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 1.8,
+                'circle-pitch-alignment': 'viewport',
+              },
+            });
+          }
+
+          // Police Points
+          if (!map.getSource(POLICE_SOURCE_ID)) {
+            map.addSource(POLICE_SOURCE_ID, {
+              type: 'geojson',
+              data: policeData,
+            });
+          }
+
+          if (!map.getLayer(NIGHT_POLICE_LAYER_ID)) {
+            map.addLayer({
+              id: NIGHT_POLICE_LAYER_ID,
+              type: 'circle',
+              source: POLICE_SOURCE_ID,
+              layout: {
+                visibility: profileRef.current === 'night' ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 7.0,
+                'circle-color': '#3b82f6',
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2.0,
+                'circle-pitch-alignment': 'viewport',
+              },
+            });
+          }
+
+          // Verified 24h Shops Points
+          if (!map.getSource(SHOPS24_SOURCE_ID)) {
+            map.addSource(SHOPS24_SOURCE_ID, {
+              type: 'geojson',
+              data: shops24Data,
+            });
+          }
+
+          if (!map.getLayer(NIGHT_24SHOPS_LAYER_ID)) {
+            map.addLayer({
+              id: NIGHT_24SHOPS_LAYER_ID,
+              type: 'circle',
+              source: SHOPS24_SOURCE_ID,
+              layout: {
+                visibility: profileRef.current === 'night' ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 8.5,
+                'circle-color': '#c084fc',
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2.5,
+                'circle-pitch-alignment': 'viewport',
+              },
+            });
+          }
+
+          // -------------------------------------------------------------
+          // 5. Interactive Popups & Hover Cursor Handlers
+          // -------------------------------------------------------------
+          const popup = new Popup({
+            closeButton: true,
+            closeOnClick: true,
+            className: 'mapmycity-popup',
+            offset: 8,
+            maxWidth: '280px',
+          });
+          popupRef.current = popup;
+
+          for (const layerId of INTERACTIVE_FEATURE_LAYERS) {
+            map.on('click', layerId, (e: MapLayerMouseEvent) => {
+              const f = e.features?.[0];
+              if (!f || !f.properties) return;
+              const html = createFeaturePopupHtml(
+                layerId,
+                f.properties as Record<string, unknown>
+              );
+              const coords: [number, number] =
+                f.geometry.type === 'Point' && Array.isArray((f.geometry as { coordinates?: unknown }).coordinates)
+                  ? ((f.geometry as { coordinates: [number, number] }).coordinates)
+                  : [e.lngLat.lng, e.lngLat.lat];
+              popup.setLngLat(coords).setHTML(html).addTo(map!);
+            });
+
+            map.on('mouseenter', layerId, () => {
+              if (map) map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', layerId, () => {
+              if (map) map.getCanvas().style.cursor = '';
+            });
+          }
+
           setIsLoading(false);
         } catch (dataErr: unknown) {
           if (!isMounted) return;
@@ -346,7 +910,7 @@ export const MapContainer: React.FC = () => {
           setError({
             type: 'data',
             title: 'Failed to Load Chandigarh Map Layers',
-            message: 'Could not load GeoJSON block or building geometries.',
+            message: 'Could not load GeoJSON block, building, or profile feature geometries.',
             details: message,
           });
           setIsLoading(false);
@@ -369,6 +933,10 @@ export const MapContainer: React.FC = () => {
 
     return () => {
       isMounted = false;
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -400,7 +968,7 @@ export const MapContainer: React.FC = () => {
         ref={mapContainerRef}
         className="map-gl-container"
         role="region"
-        aria-label="3D Base Map of Chandigarh with Urban Block Gradients"
+        aria-label="3D Base Map of Chandigarh with Urban Block Gradients and Feature Markers"
       />
     </div>
   );
