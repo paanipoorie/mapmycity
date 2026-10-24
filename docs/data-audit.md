@@ -252,3 +252,33 @@ No files were modified. No datasets were downloaded or substituted.
 - **Routing:** roads are 98.6% connected and can support graph routing. Sidewalks and dedicated
   cycleways are fragmented and cannot support a connected profile network on their own. Wheelchair
   accessibility routing is not supported by the data at all — unknown, not unsafe/accessible.
+
+## 11. Phase 1 Implementation & Verification Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete. Commit `ccb5382` ("Phase 1: interactive 3D Chandigarh base map with building extrusions").
+- **Map Viewport:** Centered on Chandigarh at longitude `76.78`, latitude `30.735`, initial zoom `13.5`, pitch `52°`, bearing `-17.5°`.
+- **Basemap Selection & Watermark Resolution:**
+  - Evaluated CARTO Dark Matter raster tiles (`rastertiles/dark_all`). Live browser rendering revealed that CARTO now stamps an intrusive "API KEY REQUIRED carto.com/basemaps/apikey" watermark diagonally across all tiles without a paid token.
+  - Replaced with **OpenFreeMap Dark** vector style (`https://tiles.openfreemap.org/styles/dark`). Verified completely watermark-free, requires no API key, and provides sharp vector roads, sector numbers, water boundaries, and place labels.
+  - A fallback dark canvas (`#0b0d13`) and error-catching listeners were implemented to guarantee local building geometry renders even during complete network loss.
+  - Basemap's default flat 2D `building` fill layer is suppressed (`visibility: none`) to eliminate Z-fighting with our 3D extrusion geometry.
+- **3D Building Extrusions:**
+  - Loaded `public/data/chandigarh_osm.geojson` (18.7 MB, 26,270 features).
+  - Filtered to all 14,407 building polygons (`filter: ['all', ['==', '$type', 'Polygon'], ['has', 'building']]`).
+  - Height expression:
+    1. Checks explicit `height` (> 0). (Verified 0 features currently).
+    2. Checks `building:levels` (> 0) and multiplies by 3.0 m/floor (725 features).
+    3. Conservative fallback: **6.0 meters** (~2 storeys, Chandigarh's predominant low-rise sector typology) for the remaining 13,682 buildings. Missing height is strictly not treated as zero.
+  - Shading: Linear height-color interpolation (`#222d3d` to `#536d93`) paired with directional viewport lighting (`anchor: 'viewport'`, `intensity: 0.45`, `position: [1.5, 210, 40]`).
+- **MapLibre Web Worker Bundling:**
+  - Configured worker URL explicitly via `import maplibreglWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'` and `setWorkerUrl(maplibreglWorkerUrl)` to resolve Vite dev/prod worker bundling.
+- **Controls & Attribution:**
+  - NavigationControl (zoom, compass, pitch visualization) at top-right.
+  - Metric ScaleControl at bottom-left.
+  - AttributionControl at bottom-right: `Data: OpenStreetMap (ODbL) | Basemap: OpenFreeMap | OpenFreeMap © OpenMapTiles Data from OpenStreetMap`.
+  - Floating HUD panel at top-left with live status indicator ("14,407 buildings rendered") and interactive "Reset Camera" view action.
+- **Browser Verification:**
+  - Executed via Playwright on `http://localhost:5199/`.
+  - 0 console errors, 0 network failures. Verified camera animation and zoom controls.
+  - TypeScript build (`tsc -b && vite build`) and ESLint (`eslint .`) clean with 0 warnings/errors.
+
