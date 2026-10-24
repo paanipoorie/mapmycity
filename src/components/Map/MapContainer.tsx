@@ -335,7 +335,7 @@ export const MapContainer: React.FC = () => {
   const renderRouteOnMap = useCallback(
     (coords: [number, number][], profile: UserProfile) => {
       const map = mapRef.current;
-      if (!map || !map.isStyleLoaded()) return;
+      if (!map) return;
 
       const source = map.getSource(ROUTE_SOURCE_ID) as GeoJSONSource | undefined;
       if (source) {
@@ -497,10 +497,65 @@ export const MapContainer: React.FC = () => {
     }
   }, [startPoint, destPoint, mode]);
 
+  // Helper to synchronize map layer paint styles and visibility to profile and mode
+  const syncProfileLayers = useCallback((profile: UserProfile, currentMode: AppMode) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // 1. Close open popup on profile switch
+    if (popupRef.current) {
+      popupRef.current.remove();
+    }
+
+    // 2. Update block fill colors & opacity
+    if (map.getLayer(BLOCKS_FILL_LAYER_ID)) {
+      map.setPaintProperty(
+        BLOCKS_FILL_LAYER_ID,
+        'fill-color',
+        getBlockFillColorExpression(profile)
+      );
+      map.setPaintProperty(
+        BLOCKS_FILL_LAYER_ID,
+        'fill-opacity',
+        getBlockFillOpacityExpression(profile, currentMode)
+      );
+    }
+
+    // 3. Update block outline colors
+    if (map.getLayer(BLOCKS_LINE_LAYER_ID)) {
+      map.setPaintProperty(
+        BLOCKS_LINE_LAYER_ID,
+        'line-color',
+        getBlockLineColorExpression(profile)
+      );
+    }
+
+    // 4. Update route line color
+    if (map.getLayer(ROUTE_LINE_LAYER_ID)) {
+      map.setPaintProperty(
+        ROUTE_LINE_LAYER_ID,
+        'line-color',
+        PROFILE_CONFIGS[profile].accentColor
+      );
+    }
+
+    // 5. Toggle profile-specific line and marker layers
+    const allProfiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
+    for (const p of allProfiles) {
+      const isVisible = p === profile ? 'visible' : 'none';
+      const layers = PROFILE_LAYERS[p] || [];
+      for (const layerId of layers) {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(layerId, 'visibility', isVisible);
+        }
+      }
+    }
+  }, []);
+
   // Mode change effect: Subdue blocks and adjust visibility in Path Mode
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
 
     // 1. Close any open popup on mode change
     if (popupRef.current) {
@@ -539,58 +594,8 @@ export const MapContainer: React.FC = () => {
 
   // Active Profile change effect: update layers and markers
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-
-    // 1. Close open popup on profile switch
-    if (popupRef.current) {
-      popupRef.current.remove();
-    }
-
-    // 2. Update block fill colors & opacity
-    if (map.getLayer(BLOCKS_FILL_LAYER_ID)) {
-      map.setPaintProperty(
-        BLOCKS_FILL_LAYER_ID,
-        'fill-color',
-        getBlockFillColorExpression(activeProfile)
-      );
-      map.setPaintProperty(
-        BLOCKS_FILL_LAYER_ID,
-        'fill-opacity',
-        getBlockFillOpacityExpression(activeProfile, modeRef.current)
-      );
-    }
-
-    // 3. Update block outline colors
-    if (map.getLayer(BLOCKS_LINE_LAYER_ID)) {
-      map.setPaintProperty(
-        BLOCKS_LINE_LAYER_ID,
-        'line-color',
-        getBlockLineColorExpression(activeProfile)
-      );
-    }
-
-    // 4. Update route line color
-    if (map.getLayer(ROUTE_LINE_LAYER_ID)) {
-      map.setPaintProperty(
-        ROUTE_LINE_LAYER_ID,
-        'line-color',
-        PROFILE_CONFIGS[activeProfile].accentColor
-      );
-    }
-
-    // 5. Toggle profile-specific line and marker layers
-    const allProfiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
-    for (const p of allProfiles) {
-      const isVisible = p === activeProfile ? 'visible' : 'none';
-      const layers = PROFILE_LAYERS[p] || [];
-      for (const layerId of layers) {
-        if (map.getLayer(layerId)) {
-          map.setLayoutProperty(layerId, 'visibility', isVisible);
-        }
-      }
-    }
-  }, [activeProfile]);
+    syncProfileLayers(activeProfile, modeRef.current);
+  }, [activeProfile, syncProfileLayers]);
 
   // Main MapLibre Initialization Effect
   useEffect(() => {
@@ -1348,6 +1353,9 @@ export const MapContainer: React.FC = () => {
             });
           });
 
+          // Sync initial layer visibility and paint properties to current profile/mode
+          syncProfileLayers(profileRef.current, modeRef.current);
+
           setIsLoading(false);
         } catch (dataErr: unknown) {
           if (!isMounted) return;
@@ -1398,7 +1406,7 @@ export const MapContainer: React.FC = () => {
         mapRef.current = null;
       }
     };
-  }, [retryCount]);
+  }, [retryCount, syncProfileLayers]);
 
   // Global listener for popup "Set Start / Set Dest" action clicks
   useEffect(() => {
