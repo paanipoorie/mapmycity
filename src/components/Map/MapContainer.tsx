@@ -76,6 +76,7 @@ import { ControlBar } from '../UI/ControlBar.tsx';
 import { Legend } from '../UI/Legend.tsx';
 import { RoutingPanel } from '../UI/RoutingPanel.tsx';
 import { ErrorNotice } from '../UI/ErrorNotice.tsx';
+import { AIRecommendationModal } from '../UI/AIRecommendationModal.tsx';
 import { RoutingNetwork } from '../../services/routing/networkGraph.ts';
 import { calculateRoute } from '../../services/routing/dijkstraRouter.ts';
 
@@ -280,6 +281,7 @@ export const MapContainer: React.FC = () => {
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [snapNotice, setSnapNotice] = useState<string | null>(null);
+  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     profileRef.current = activeProfile;
@@ -1515,6 +1517,27 @@ export const MapContainer: React.FC = () => {
         onModeChange={handleModeChange}
         profile={activeProfile}
         onProfileChange={setActiveProfile}
+        onOpenRecommendation={() => setIsAiModalOpen(true)}
+      />
+
+      {/* Antigravity AI Recommendation Modal */}
+      <AIRecommendationModal
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        activeProfile={activeProfile}
+        activeMode={mode}
+        destPoint={destPoint}
+        onApplyProfile={(p) => setActiveProfile(p)}
+        onSelectDestination={(ep) => {
+          const snap = networkRef.current.snapPoint(ep.coordinates[0], ep.coordinates[1]);
+          setDestPoint({
+            coordinates: ep.coordinates,
+            name: ep.name,
+            snappedPoint: snap ? snap.coordinates : ep.coordinates,
+            snapDistanceMeters: snap ? snap.distanceMeters : 0,
+          });
+        }}
+        onSwitchToPathMode={() => setMode('path')}
       />
 
       {/* Profile Density & Markers Legend */}
