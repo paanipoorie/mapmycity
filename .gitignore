@@ -42,5 +42,8 @@ Thumbs.db
 # Local reference materials
 references/
 
+# Test artifacts
+.playwright-mcp/
+
 # AI skill lockfile
 /skills-lock.json
