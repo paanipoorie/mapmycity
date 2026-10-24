@@ -40,3 +40,32 @@ export interface ProfileMeta {
   markerLegend: MarkerLegendItem[];
   dataDescription: string;
 }
+
+export interface RouteEndpoint {
+  coordinates: [number, number];
+  name?: string;
+  snappedPoint?: [number, number];
+  snapDistanceMeters?: number;
+}
+
+export interface RouteResult {
+  success: boolean;
+  coordinates: [number, number][];
+  distanceMeters: number;
+  durationMinutes: number;
+  speedKmh: number;
+  profile: UserProfile;
+  segmentBreakdown: Record<string, number>;
+  startSnapped: [number, number];
+  destSnapped: [number, number];
+  errorReason?: string;
+}
+
+export interface RoutingPreset {
+  id: string;
+  name: string;
+  sector: string;
+  coordinates: [number, number];
+  profileAffinity?: UserProfile;
+  description: string;
+}

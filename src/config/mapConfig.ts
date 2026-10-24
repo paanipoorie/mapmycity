@@ -1,5 +1,5 @@
 import type { StyleSpecification, ExpressionSpecification } from 'maplibre-gl';
-import type { UserProfile, ProfileMeta } from '../types/map.ts';
+import type { UserProfile, ProfileMeta, AppMode } from '../types/map.ts';
 
 /**
  * Geographic center for Chandigarh, India.
@@ -133,6 +133,11 @@ export const BICYCLE_PARKING_LAYER_ID = 'bicycle-parking-circle';
 export const NIGHT_HOSPITALS_LAYER_ID = 'night-hospitals-circle';
 export const NIGHT_POLICE_LAYER_ID = 'night-police-circle';
 export const NIGHT_24SHOPS_LAYER_ID = 'night-24shops-circle';
+
+// Phase 4 Routing Layer IDs
+export const ROUTE_SOURCE_ID = 'route-path-source';
+export const ROUTE_CASING_LAYER_ID = 'route-path-casing';
+export const ROUTE_LINE_LAYER_ID = 'route-path-line';
 
 /**
  * Layer groupings by profile to allow instantaneous visibility toggles.
@@ -350,15 +355,21 @@ export function getBlockFillColorExpression(profile: UserProfile): ExpressionSpe
 }
 
 /**
- * Returns the MapLibre expression for block fill opacity based on active profile tier.
+ * Returns the MapLibre expression for block fill opacity based on active profile tier and mode.
+ * In Path mode, blocks are subtly rendered so the street network and calculated route dominate.
  */
-export function getBlockFillOpacityExpression(profile: UserProfile): ExpressionSpecification {
+export function getBlockFillOpacityExpression(
+  profile: UserProfile,
+  mode: AppMode = 'block'
+): ExpressionSpecification {
   const tierProp = `${profile}_tier`;
+  const highOpacity = mode === 'path' ? 0.15 : 0.78;
+  const zeroOpacity = mode === 'path' ? 0.05 : 0.35;
   return [
     'case',
     ['==', ['get', tierProp], 0],
-    0.35,
-    0.78,
+    zeroOpacity,
+    highOpacity,
   ];
 }
 

@@ -5,9 +5,12 @@ import {
   ScaleControl,
   AttributionControl,
   Popup,
+  Marker,
   setWorkerUrl,
   type ErrorEvent,
   type MapLayerMouseEvent,
+  type GeoJSONSource,
+  LngLatBounds,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreglWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
@@ -39,6 +42,9 @@ import {
   POLICE_SOURCE_ID,
   SHOPS24_GEOJSON_DATA_URL,
   SHOPS24_SOURCE_ID,
+  ROUTE_SOURCE_ID,
+  ROUTE_CASING_LAYER_ID,
+  ROUTE_LINE_LAYER_ID,
   WHEELCHAIR_PATHS_LAYER_ID,
   WHEELCHAIR_STEPS_LAYER_ID,
   WHEELCHAIR_POINTS_LAYER_ID,
@@ -52,15 +58,26 @@ import {
   INTERACTIVE_FEATURE_LAYERS,
   BUILDING_HEIGHT_EXPRESSION,
   BUILDING_COLOR_EXPRESSION,
+  PROFILE_CONFIGS,
   getBlockFillColorExpression,
   getBlockFillOpacityExpression,
   getBlockLineColorExpression,
 } from '../../config/mapConfig.ts';
-import type { MapError, AppMode, UserProfile } from '../../types/map.ts';
+import type {
+  MapError,
+  AppMode,
+  UserProfile,
+  RouteEndpoint,
+  RouteResult,
+  RoutingPreset,
+} from '../../types/map.ts';
 import { Header } from '../UI/Header.tsx';
 import { ControlBar } from '../UI/ControlBar.tsx';
 import { Legend } from '../UI/Legend.tsx';
+import { RoutingPanel } from '../UI/RoutingPanel.tsx';
 import { ErrorNotice } from '../UI/ErrorNotice.tsx';
+import { RoutingNetwork } from '../../services/routing/networkGraph.ts';
+import { calculateRoute } from '../../services/routing/dijkstraRouter.ts';
 
 // Configure MapLibre Web Worker URL for Vite bundling
 if (typeof window !== 'undefined') {
@@ -92,7 +109,9 @@ function escapeHtml(str: unknown): string {
 
 function createFeaturePopupHtml(
   layerId: string,
-  p: Record<string, unknown>
+  p: Record<string, unknown>,
+  coords: [number, number],
+  mode: AppMode
 ): string {
   let badgeText = 'Feature';
   let badgeBg = '#4b5563';
@@ -125,7 +144,7 @@ function createFeaturePopupHtml(
       if (!title) title = 'Pedestrian Steps';
       rows.push({
         key: 'Barrier',
-        val: 'Stairs (inaccessible for wheelchairs)',
+        val: 'Stairs (impassable barrier for wheelchairs)',
       });
       rows.push({
         key: 'Ramp',
@@ -133,7 +152,7 @@ function createFeaturePopupHtml(
       });
       if (p.handrail) rows.push({ key: 'Handrail', val: escapeHtml(p.handrail) });
       if (p.incline) rows.push({ key: 'Incline', val: escapeHtml(p.incline) });
-      note = 'chandigarh_pedestrian.geojson';
+      note = 'chandigarh_pedestrian.geojson (avoided in Wheelchair Path mode)';
       break;
     }
     case BICYCLE_PARKING_LAYER_ID: {
@@ -160,7 +179,7 @@ function createFeaturePopupHtml(
       if (p.surface) rows.push({ key: 'Surface', val: escapeHtml(p.surface) });
       if (p.oneway) rows.push({ key: 'One-Way', val: escapeHtml(p.oneway) });
       if (p.sport) rows.push({ key: 'Sport', val: escapeHtml(p.sport) });
-      note = 'chandigarh_cycleways.geojson';
+      note = 'chandigarh_cycleways.geojson (preferred in Bicycle routing)';
       break;
     }
     case NIGHT_HOSPITALS_LAYER_ID: {
@@ -176,7 +195,7 @@ function createFeaturePopupHtml(
       });
       if (p.wheelchair)
         rows.push({ key: 'Wheelchair', val: escapeHtml(p.wheelchair) });
-      note = 'chandigarh_hospitals.geojson';
+      note = 'chandigarh_hospitals.geojson (24/7 service waypoint)';
       break;
     }
     case NIGHT_POLICE_LAYER_ID: {
@@ -184,7 +203,7 @@ function createFeaturePopupHtml(
       badgeBg = '#3b82f6';
       if (!title) title = 'Police Station (Unnamed in OSM)';
       rows.push({ key: 'Facility', val: 'amenity: police' });
-      note = 'chandigarh_police.geojson';
+      note = 'chandigarh_police.geojson (24/7 service waypoint)';
       break;
     }
     case NIGHT_24SHOPS_LAYER_ID: {
@@ -207,6 +226,19 @@ function createFeaturePopupHtml(
     )
     .join('');
 
+  const coordStr = `${coords[0]},${coords[1]}`;
+  const routingActionsHtml =
+    mode === 'path'
+      ? `<div class="popup-route-actions">
+          <button type="button" class="popup-btn-route start" data-coords="${coordStr}" data-name="${title}">
+            Set as Start (A)
+          </button>
+          <button type="button" class="popup-btn-route dest" data-coords="${coordStr}" data-name="${title}">
+            Set as Dest (B)
+          </button>
+        </div>`
+      : '';
+
   return `
     <div class="popup-card">
       <span class="popup-badge" style="background-color: ${badgeBg}; color: #ffffff;">${badgeText}</span>
@@ -215,6 +247,7 @@ function createFeaturePopupHtml(
         ${rowsHtml}
       </div>
       ${note ? `<div class="popup-note">${note}</div>` : ''}
+      ${routingActionsHtml}
     </div>
   `;
 }
@@ -223,6 +256,11 @@ export const MapContainer: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const popupRef = useRef<Popup | null>(null);
+  const networkRef = useRef<RoutingNetwork>(new RoutingNetwork());
+
+  // Map markers for Path Mode Start (A) and Destination (B)
+  const startMarkerRef = useRef<Marker | null>(null);
+  const destMarkerRef = useRef<Marker | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [buildingCount, setBuildingCount] = useState<number | null>(null);
@@ -232,10 +270,35 @@ export const MapContainer: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('block');
   const [activeProfile, setActiveProfile] = useState<UserProfile>('bicycle');
   const profileRef = useRef<UserProfile>(activeProfile);
+  const modeRef = useRef<AppMode>(mode);
+
+  // Routing state
+  const [startPoint, setStartPoint] = useState<RouteEndpoint | null>(null);
+  const [destPoint, setDestPoint] = useState<RouteEndpoint | null>(null);
+  const [pickingMode, setPickingMode] = useState<'start' | 'dest' | null>(null);
+  const pickingModeRef = useRef<'start' | 'dest' | null>(pickingMode);
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const [isCalculating, setIsCalculating] = useState<boolean>(false);
+  const [snapNotice, setSnapNotice] = useState<string | null>(null);
 
   useEffect(() => {
     profileRef.current = activeProfile;
   }, [activeProfile]);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    pickingModeRef.current = pickingMode;
+  }, [pickingMode]);
+
+  const handleModeChange = useCallback((newMode: AppMode) => {
+    setMode(newMode);
+    if (newMode === 'block') {
+      setPickingMode(null);
+    }
+  }, []);
 
   const [error, setError] = useState<MapError | null>(() => {
     if (!isWebGLSupported()) {
@@ -268,12 +331,218 @@ export const MapContainer: React.FC = () => {
     setRetryCount((prev) => prev + 1);
   }, []);
 
-  // Update map layer paint properties and layer visibility when active profile changes
+  // Update Route GeoJSON Source on map
+  const renderRouteOnMap = useCallback(
+    (coords: [number, number][], profile: UserProfile) => {
+      const map = mapRef.current;
+      if (!map || !map.isStyleLoaded()) return;
+
+      const source = map.getSource(ROUTE_SOURCE_ID) as GeoJSONSource | undefined;
+      if (source) {
+        if (coords.length >= 2) {
+          source.setData({
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: coords,
+            },
+            properties: { profile },
+          });
+        } else {
+          source.setData({
+            type: 'FeatureCollection',
+            features: [],
+          });
+        }
+      }
+
+      // Update route line color
+      if (map.getLayer(ROUTE_LINE_LAYER_ID)) {
+        map.setPaintProperty(
+          ROUTE_LINE_LAYER_ID,
+          'line-color',
+          PROFILE_CONFIGS[profile].accentColor
+        );
+      }
+    },
+    []
+  );
+
+  // Core route calculation trigger
+  const triggerRouting = useCallback(
+    (
+      start: RouteEndpoint,
+      dest: RouteEndpoint,
+      profile: UserProfile,
+      shouldFitBounds = false
+    ) => {
+      const network = networkRef.current;
+      if (!network.isReady) return;
+
+      setIsCalculating(true);
+      setSnapNotice(null);
+
+      // Snap start point
+      const startSnap = network.snapPoint(
+        start.coordinates[0],
+        start.coordinates[1]
+      );
+      if (!startSnap) {
+        setSnapNotice(
+          'Start point could not be snapped to the mapped network (> 250m from roads).'
+        );
+        setIsCalculating(false);
+        setRouteResult({
+          success: false,
+          coordinates: [],
+          distanceMeters: 0,
+          durationMinutes: 0,
+          speedKmh: 0,
+          profile,
+          segmentBreakdown: {},
+          startSnapped: start.coordinates,
+          destSnapped: dest.coordinates,
+          errorReason:
+            'Start point is too far from any mapped street or path in Chandigarh (> 250m tolerance).',
+        });
+        renderRouteOnMap([], profile);
+        return;
+      }
+
+      // Snap dest point
+      const destSnap = network.snapPoint(
+        dest.coordinates[0],
+        dest.coordinates[1]
+      );
+      if (!destSnap) {
+        setSnapNotice(
+          'Destination could not be snapped to the mapped network (> 250m from roads).'
+        );
+        setIsCalculating(false);
+        setRouteResult({
+          success: false,
+          coordinates: [],
+          distanceMeters: 0,
+          durationMinutes: 0,
+          speedKmh: 0,
+          profile,
+          segmentBreakdown: {},
+          startSnapped: startSnap.coordinates,
+          destSnapped: dest.coordinates,
+          errorReason:
+            'Destination point is too far from any mapped street or path in Chandigarh (> 250m tolerance).',
+        });
+        renderRouteOnMap([], profile);
+        return;
+      }
+
+      // Run Dijkstra router
+      const result = calculateRoute(network, startSnap, destSnap, profile);
+      setRouteResult(result);
+      setIsCalculating(false);
+
+      if (result.success && result.coordinates.length >= 2) {
+        renderRouteOnMap(result.coordinates, profile);
+
+        // Optionally zoom to route extent
+        if (shouldFitBounds && mapRef.current) {
+          const bounds = new LngLatBounds();
+          for (const c of result.coordinates) {
+            bounds.extend(c);
+          }
+          mapRef.current.fitBounds(bounds, {
+            padding: { top: 100, bottom: 100, left: 400, right: 100 },
+            maxZoom: 16,
+            duration: 900,
+          });
+        }
+      } else {
+        renderRouteOnMap([], profile);
+      }
+    },
+    [renderRouteOnMap]
+  );
+
+  // Recalculate route when endpoints or active profile changes
+  useEffect(() => {
+    if (mode === 'path' && startPoint && destPoint) {
+      triggerRouting(startPoint, destPoint, activeProfile, false);
+    }
+  }, [activeProfile, startPoint, destPoint, mode, triggerRouting]);
+
+  // Update MapLibre markers when startPoint or destPoint changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (mode === 'path') {
+      // Start Marker
+      if (startPoint && startMarkerRef.current) {
+        const coords = startPoint.snappedPoint || startPoint.coordinates;
+        startMarkerRef.current.setLngLat(coords).addTo(map);
+      } else if (startMarkerRef.current) {
+        startMarkerRef.current.remove();
+      }
+
+      // Dest Marker
+      if (destPoint && destMarkerRef.current) {
+        const coords = destPoint.snappedPoint || destPoint.coordinates;
+        destMarkerRef.current.setLngLat(coords).addTo(map);
+      } else if (destMarkerRef.current) {
+        destMarkerRef.current.remove();
+      }
+    } else {
+      if (startMarkerRef.current) startMarkerRef.current.remove();
+      if (destMarkerRef.current) destMarkerRef.current.remove();
+    }
+  }, [startPoint, destPoint, mode]);
+
+  // Mode change effect: Subdue blocks and adjust visibility in Path Mode
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
 
-    // 1. Close any open popup on profile switch
+    // 1. Close any open popup on mode change
+    if (popupRef.current) {
+      popupRef.current.remove();
+    }
+
+    // 2. Adjust block fill opacity for Path vs Block mode
+    if (map.getLayer(BLOCKS_FILL_LAYER_ID)) {
+      map.setPaintProperty(
+        BLOCKS_FILL_LAYER_ID,
+        'fill-opacity',
+        getBlockFillOpacityExpression(activeProfile, mode)
+      );
+    }
+
+    // 3. Toggle route line visibility
+    const routeVisibility = mode === 'path' ? 'visible' : 'none';
+    if (map.getLayer(ROUTE_LINE_LAYER_ID)) {
+      map.setLayoutProperty(ROUTE_LINE_LAYER_ID, 'visibility', routeVisibility);
+    }
+    if (map.getLayer(ROUTE_CASING_LAYER_ID)) {
+      map.setLayoutProperty(
+        ROUTE_CASING_LAYER_ID,
+        'visibility',
+        routeVisibility
+      );
+    }
+
+    // 4. Update cursor
+    if (mode === 'path') {
+      map.getCanvas().style.cursor = pickingMode ? 'crosshair' : '';
+    } else {
+      map.getCanvas().style.cursor = '';
+    }
+  }, [mode, activeProfile, pickingMode]);
+
+  // Active Profile change effect: update layers and markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    // 1. Close open popup on profile switch
     if (popupRef.current) {
       popupRef.current.remove();
     }
@@ -288,7 +557,7 @@ export const MapContainer: React.FC = () => {
       map.setPaintProperty(
         BLOCKS_FILL_LAYER_ID,
         'fill-opacity',
-        getBlockFillOpacityExpression(activeProfile)
+        getBlockFillOpacityExpression(activeProfile, modeRef.current)
       );
     }
 
@@ -301,7 +570,16 @@ export const MapContainer: React.FC = () => {
       );
     }
 
-    // 4. Toggle profile-specific line and marker layers
+    // 4. Update route line color
+    if (map.getLayer(ROUTE_LINE_LAYER_ID)) {
+      map.setPaintProperty(
+        ROUTE_LINE_LAYER_ID,
+        'line-color',
+        PROFILE_CONFIGS[activeProfile].accentColor
+      );
+    }
+
+    // 5. Toggle profile-specific line and marker layers
     const allProfiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
     for (const p of allProfiles) {
       const isVisible = p === activeProfile ? 'visible' : 'none';
@@ -314,10 +592,10 @@ export const MapContainer: React.FC = () => {
     }
   }, [activeProfile]);
 
+  // Main MapLibre Initialization Effect
   useEffect(() => {
     if (!mapContainerRef.current || !isWebGLSupported()) return;
 
-    // Clean up existing map instance if retrying
     if (mapRef.current) {
       mapRef.current.remove();
       mapRef.current = null;
@@ -343,7 +621,7 @@ export const MapContainer: React.FC = () => {
         (window as unknown as { _map?: Map })._map = map;
       }
 
-      // Add navigation controls (zoom, compass, pitch visualize)
+      // Add navigation controls
       map.addControl(
         new NavigationControl({
           showCompass: true,
@@ -362,7 +640,7 @@ export const MapContainer: React.FC = () => {
         'bottom-left'
       );
 
-      // Add attribution control with OSM and OpenFreeMap attribution
+      // Add attribution control
       map.addControl(
         new AttributionControl({
           compact: false,
@@ -372,10 +650,26 @@ export const MapContainer: React.FC = () => {
         'bottom-right'
       );
 
+      // Create DOM Marker elements for Start and Destination
+      const startMarkerEl = document.createElement('div');
+      startMarkerEl.className = 'route-map-pin start';
+      startMarkerEl.innerHTML = '<span class="pin-letter">A</span>';
+      startMarkerRef.current = new Marker({
+        element: startMarkerEl,
+        anchor: 'center',
+      });
+
+      const destMarkerEl = document.createElement('div');
+      destMarkerEl.className = 'route-map-pin dest';
+      destMarkerEl.innerHTML = '<span class="pin-letter">B</span>';
+      destMarkerRef.current = new Marker({
+        element: destMarkerEl,
+        anchor: 'center',
+      });
+
       // Listen for runtime map errors
       map.on('error', (e: ErrorEvent) => {
         if (!isMounted) return;
-
         const msg = e.error?.message || '';
         const isTransientTileError =
           msg.includes('status 404') ||
@@ -391,11 +685,11 @@ export const MapContainer: React.FC = () => {
         }
       });
 
-      // Once base map style is loaded, load GeoJSON data sources
+      // Once style is loaded, fetch datasets and build graph
       map.on('load', async () => {
         if (!isMounted || !map) return;
 
-        // Hide basemap's flat 2D building footprints to prevent Z-fighting with 3D extrusions
+        // Hide basemap's flat 2D building footprints
         if (map.getLayer('building')) {
           map.setLayoutProperty('building', 'visibility', 'none');
         }
@@ -435,7 +729,9 @@ export const MapContainer: React.FC = () => {
           if (!blocksRes.ok)
             throw new Error(`Failed to load blocks: HTTP ${blocksRes.status}`);
           if (!buildingsRes.ok)
-            throw new Error(`Failed to load buildings: HTTP ${buildingsRes.status}`);
+            throw new Error(
+              `Failed to load buildings: HTTP ${buildingsRes.status}`
+            );
           if (!pedestrianRes.ok)
             throw new Error(
               `Failed to load pedestrian data: HTTP ${pedestrianRes.status}`
@@ -459,7 +755,9 @@ export const MapContainer: React.FC = () => {
           if (!policeRes.ok)
             throw new Error(`Failed to load police: HTTP ${policeRes.status}`);
           if (!shops24Res.ok)
-            throw new Error(`Failed to load 24h shops: HTTP ${shops24Res.status}`);
+            throw new Error(
+              `Failed to load 24h shops: HTTP ${shops24Res.status}`
+            );
 
           const [
             blocksData,
@@ -511,6 +809,19 @@ export const MapContainer: React.FC = () => {
           );
           setBuildingCount(bCount);
 
+          // Build routing network graph from loaded line features
+          const nightPoints: Array<[number, number]> = [];
+          for (const f of [
+            ...hospitalsData.features,
+            ...policeData.features,
+            ...shops24Data.features,
+          ]) {
+            if (f.geometry?.type === 'Point' && Array.isArray(f.geometry.coordinates)) {
+              nightPoints.push(f.geometry.coordinates as [number, number]);
+            }
+          }
+          networkRef.current.build(buildingsData.features, nightPoints);
+
           // Find first symbol layer to insert ground/line layers below street labels
           const firstSymbolId = map
             .getStyle()
@@ -534,7 +845,10 @@ export const MapContainer: React.FC = () => {
                 source: BLOCKS_SOURCE_ID,
                 paint: {
                   'fill-color': getBlockFillColorExpression(profileRef.current),
-                  'fill-opacity': getBlockFillOpacityExpression(profileRef.current),
+                  'fill-opacity': getBlockFillOpacityExpression(
+                    profileRef.current,
+                    modeRef.current
+                  ),
                 },
               },
               firstSymbolId
@@ -558,7 +872,7 @@ export const MapContainer: React.FC = () => {
           }
 
           // -------------------------------------------------------------
-          // 2. Line Infrastructure Sources & Layers (placed below 3D buildings)
+          // 2. Line Infrastructure Sources & Layers
           // -------------------------------------------------------------
           // Pedestrian Source
           if (!map.getSource(PEDESTRIAN_SOURCE_ID)) {
@@ -634,7 +948,7 @@ export const MapContainer: React.FC = () => {
           }
 
           // -------------------------------------------------------------
-          // 3. 3D Building Extrusion Source & Layer (elevated plane)
+          // 3. 3D Building Extrusion Source & Layer
           // -------------------------------------------------------------
           if (!map.getSource(BUILDINGS_SOURCE_ID)) {
             map.addSource(BUILDINGS_SOURCE_ID, {
@@ -643,7 +957,7 @@ export const MapContainer: React.FC = () => {
             });
           }
 
-          // Bicycle Corridor Tracks Line Layer (sourced from chandigarh-osm)
+          // Bicycle Corridor Tracks Line Layer
           if (!map.getLayer(BICYCLE_CORRIDOR_TRACKS_LAYER_ID)) {
             map.addLayer(
               {
@@ -708,7 +1022,11 @@ export const MapContainer: React.FC = () => {
                 id: BUILDINGS_LAYER_ID,
                 type: 'fill-extrusion',
                 source: BUILDINGS_SOURCE_ID,
-                filter: ['all', ['==', ['geometry-type'], 'Polygon'], ['has', 'building']],
+                filter: [
+                  'all',
+                  ['==', ['geometry-type'], 'Polygon'],
+                  ['has', 'building'],
+                ],
                 paint: {
                   'fill-extrusion-color': BUILDING_COLOR_EXPRESSION,
                   'fill-extrusion-height': BUILDING_HEIGHT_EXPRESSION,
@@ -722,7 +1040,66 @@ export const MapContainer: React.FC = () => {
           }
 
           // -------------------------------------------------------------
-          // 4. Point Marker Sources & Layers (rendered above 3D extrusions)
+          // 4. Phase 4 Calculated Route Layers (placed above buildings)
+          // -------------------------------------------------------------
+          if (!map.getSource(ROUTE_SOURCE_ID)) {
+            map.addSource(ROUTE_SOURCE_ID, {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: [],
+              },
+            });
+          }
+
+          // Route glow / casing layer
+          if (!map.getLayer(ROUTE_CASING_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: ROUTE_CASING_LAYER_ID,
+                type: 'line',
+                source: ROUTE_SOURCE_ID,
+                layout: {
+                  visibility: modeRef.current === 'path' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'round',
+                },
+                paint: {
+                  'line-color': '#020617',
+                  'line-width': 8.5,
+                  'line-opacity': 0.8,
+                  'line-blur': 1.0,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // Main Route line layer
+          if (!map.getLayer(ROUTE_LINE_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: ROUTE_LINE_LAYER_ID,
+                type: 'line',
+                source: ROUTE_SOURCE_ID,
+                layout: {
+                  visibility: modeRef.current === 'path' ? 'visible' : 'none',
+                  'line-join': 'round',
+                  'line-cap': 'round',
+                },
+                paint: {
+                  'line-color':
+                    PROFILE_CONFIGS[profileRef.current].accentColor,
+                  'line-width': 4.5,
+                  'line-opacity': 0.95,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // -------------------------------------------------------------
+          // 5. Point Marker Sources & Layers (rendered above 3D extrusions)
           // -------------------------------------------------------------
           // Wheelchair Accessibility Points
           if (!map.getSource(WHEELCHAIR_POINTS_SOURCE_ID)) {
@@ -867,14 +1244,14 @@ export const MapContainer: React.FC = () => {
           }
 
           // -------------------------------------------------------------
-          // 5. Interactive Popups & Hover Cursor Handlers
+          // 6. Interactive Popups & Hover Cursor Handlers
           // -------------------------------------------------------------
           const popup = new Popup({
             closeButton: true,
             closeOnClick: true,
             className: 'mapmycity-popup',
             offset: 8,
-            maxWidth: '280px',
+            maxWidth: '300px',
           });
           popupRef.current = popup;
 
@@ -882,14 +1259,18 @@ export const MapContainer: React.FC = () => {
             map.on('click', layerId, (e: MapLayerMouseEvent) => {
               const f = e.features?.[0];
               if (!f || !f.properties) return;
+              const coords: [number, number] =
+                f.geometry.type === 'Point' &&
+                Array.isArray((f.geometry as { coordinates?: unknown }).coordinates)
+                  ? (f.geometry as { coordinates: [number, number] }).coordinates
+                  : [e.lngLat.lng, e.lngLat.lat];
+
               const html = createFeaturePopupHtml(
                 layerId,
-                f.properties as Record<string, unknown>
+                f.properties as Record<string, unknown>,
+                coords,
+                modeRef.current
               );
-              const coords: [number, number] =
-                f.geometry.type === 'Point' && Array.isArray((f.geometry as { coordinates?: unknown }).coordinates)
-                  ? ((f.geometry as { coordinates: [number, number] }).coordinates)
-                  : [e.lngLat.lng, e.lngLat.lat];
               popup.setLngLat(coords).setHTML(html).addTo(map!);
             });
 
@@ -897,9 +1278,75 @@ export const MapContainer: React.FC = () => {
               if (map) map.getCanvas().style.cursor = 'pointer';
             });
             map.on('mouseleave', layerId, () => {
-              if (map) map.getCanvas().style.cursor = '';
+              if (map) {
+                map.getCanvas().style.cursor =
+                  modeRef.current === 'path' && pickingModeRef.current ? 'crosshair' : '';
+              }
             });
           }
+
+          // -------------------------------------------------------------
+          // 7. General Map Click Handler (for Path Mode start/dest selection)
+          // -------------------------------------------------------------
+          map.on('click', (e: MapLayerMouseEvent) => {
+            if (modeRef.current !== 'path') return;
+
+            // If click originated on a feature that opens a popup, let popup handle it
+            const clickedFeatures = map!.queryRenderedFeatures(e.point, {
+              layers: INTERACTIVE_FEATURE_LAYERS.filter((l) => map!.getLayer(l)),
+            });
+            if (clickedFeatures.length > 0) return;
+
+            const clickLon = e.lngLat.lng;
+            const clickLat = e.lngLat.lat;
+
+            const network = networkRef.current;
+            if (!network.isReady) return;
+
+            const snap = network.snapPoint(clickLon, clickLat);
+            if (!snap) {
+              setSnapNotice(
+                'Selected point is too far (> 250m) from any mapped street. Click closer to a road.'
+              );
+              return;
+            }
+            setSnapNotice(null);
+
+            const activePick = pickingModeRef.current;
+
+            setStartPoint((prevStart) => {
+              setDestPoint((prevDest) => {
+                // Determine whether to set start or destination
+                if (activePick === 'start' || !prevStart) {
+                  setPickingMode(prevDest ? null : 'dest');
+                  return prevDest;
+                } else if (activePick === 'dest' || (prevStart && !prevDest)) {
+                  setPickingMode(null);
+                  return {
+                    coordinates: [clickLon, clickLat],
+                    snappedPoint: snap.coordinates,
+                    snapDistanceMeters: snap.distanceMeters,
+                  };
+                } else {
+                  // Both already set: update destination
+                  return {
+                    coordinates: [clickLon, clickLat],
+                    snappedPoint: snap.coordinates,
+                    snapDistanceMeters: snap.distanceMeters,
+                  };
+                }
+              });
+
+              if (activePick === 'start' || !prevStart) {
+                return {
+                  coordinates: [clickLon, clickLat],
+                  snappedPoint: snap.coordinates,
+                  snapDistanceMeters: snap.distanceMeters,
+                };
+              }
+              return prevStart;
+            });
+          });
 
           setIsLoading(false);
         } catch (dataErr: unknown) {
@@ -910,7 +1357,8 @@ export const MapContainer: React.FC = () => {
           setError({
             type: 'data',
             title: 'Failed to Load Chandigarh Map Layers',
-            message: 'Could not load GeoJSON block, building, or profile feature geometries.',
+            message:
+              'Could not load GeoJSON block, building, or profile feature geometries.',
             details: message,
           });
           setIsLoading(false);
@@ -937,6 +1385,14 @@ export const MapContainer: React.FC = () => {
         popupRef.current.remove();
         popupRef.current = null;
       }
+      if (startMarkerRef.current) {
+        startMarkerRef.current.remove();
+        startMarkerRef.current = null;
+      }
+      if (destMarkerRef.current) {
+        destMarkerRef.current.remove();
+        destMarkerRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -944,23 +1400,136 @@ export const MapContainer: React.FC = () => {
     };
   }, [retryCount]);
 
+  // Global listener for popup "Set Start / Set Dest" action clicks
+  useEffect(() => {
+    const handlePopupAction = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target || !target.classList.contains('popup-btn-route')) return;
+
+      const coordsStr = target.getAttribute('data-coords');
+      const nameStr = target.getAttribute('data-name') || undefined;
+      if (!coordsStr) return;
+
+      const [lon, lat] = coordsStr.split(',').map(Number);
+      if (isNaN(lon) || isNaN(lat)) return;
+
+      const snap = networkRef.current.snapPoint(lon, lat);
+
+      if (target.classList.contains('start')) {
+        setStartPoint({
+          coordinates: [lon, lat],
+          name: nameStr,
+          snappedPoint: snap ? snap.coordinates : [lon, lat],
+          snapDistanceMeters: snap ? snap.distanceMeters : 0,
+        });
+      } else if (target.classList.contains('dest')) {
+        setDestPoint({
+          coordinates: [lon, lat],
+          name: nameStr,
+          snappedPoint: snap ? snap.coordinates : [lon, lat],
+          snapDistanceMeters: snap ? snap.distanceMeters : 0,
+        });
+      }
+
+      if (popupRef.current) {
+        popupRef.current.remove();
+      }
+    };
+
+    document.addEventListener('click', handlePopupAction);
+    return () => {
+      document.removeEventListener('click', handlePopupAction);
+    };
+  }, []);
+
+  // Endpoint handler callbacks
+  const handleClearStart = useCallback(() => {
+    setStartPoint(null);
+    setRouteResult(null);
+    renderRouteOnMap([], activeProfile);
+  }, [activeProfile, renderRouteOnMap]);
+
+  const handleClearDest = useCallback(() => {
+    setDestPoint(null);
+    setRouteResult(null);
+    renderRouteOnMap([], activeProfile);
+  }, [activeProfile, renderRouteOnMap]);
+
+  const handleClearAll = useCallback(() => {
+    setStartPoint(null);
+    setDestPoint(null);
+    setRouteResult(null);
+    setSnapNotice(null);
+    setPickingMode(null);
+    renderRouteOnMap([], activeProfile);
+  }, [activeProfile, renderRouteOnMap]);
+
+  const handleReverseEndpoints = useCallback(() => {
+    const tempStart = startPoint;
+    setStartPoint(destPoint);
+    setDestPoint(tempStart);
+  }, [startPoint, destPoint]);
+
+  const handleSelectPreset = useCallback(
+    (preset: RoutingPreset, target: 'start' | 'dest') => {
+      const snap = networkRef.current.snapPoint(
+        preset.coordinates[0],
+        preset.coordinates[1]
+      );
+      const ep: RouteEndpoint = {
+        coordinates: preset.coordinates,
+        name: preset.name,
+        snappedPoint: snap ? snap.coordinates : preset.coordinates,
+        snapDistanceMeters: snap ? snap.distanceMeters : 0,
+      };
+
+      if (target === 'start') {
+        setStartPoint(ep);
+      } else {
+        setDestPoint(ep);
+      }
+    },
+    []
+  );
+
   return (
     <div className="map-view-wrapper">
       <Header
         buildingCount={buildingCount}
         blockCount={blockCount}
         isLoading={isLoading}
+        mode={mode}
         onResetView={resetCamera}
       />
 
       <ControlBar
         mode={mode}
-        onModeChange={setMode}
+        onModeChange={handleModeChange}
         profile={activeProfile}
         onProfileChange={setActiveProfile}
       />
 
+      {/* Block Mode Legend */}
       <Legend profile={activeProfile} totalBlocks={blockCount} />
+
+      {/* Path Mode Routing Panel */}
+      {mode === 'path' && (
+        <RoutingPanel
+          profile={activeProfile}
+          startPoint={startPoint}
+          destPoint={destPoint}
+          pickingMode={pickingMode}
+          onSetPickingMode={setPickingMode}
+          onClearStart={handleClearStart}
+          onClearDest={handleClearDest}
+          onClearAll={handleClearAll}
+          onReverseEndpoints={handleReverseEndpoints}
+          onSelectPreset={handleSelectPreset}
+          routeResult={routeResult}
+          isCalculating={isCalculating}
+          snapNotice={snapNotice}
+        />
+      )}
 
       {error && <ErrorNotice error={error} onRetry={handleRetry} />}
 
@@ -968,7 +1537,7 @@ export const MapContainer: React.FC = () => {
         ref={mapContainerRef}
         className="map-gl-container"
         role="region"
-        aria-label="3D Base Map of Chandigarh with Urban Block Gradients and Feature Markers"
+        aria-label="3D Base Map of Chandigarh with Urban Block Gradients, Feature Markers, and Network Routing"
       />
     </div>
   );

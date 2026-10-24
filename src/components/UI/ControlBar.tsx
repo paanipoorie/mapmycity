@@ -29,6 +29,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             aria-selected={mode === 'block'}
             className={`control-tab-btn ${mode === 'block' ? 'active' : ''}`}
             onClick={() => onModeChange('block')}
+            title="Block mode: urban blocks colored by feature density gradient"
           >
             <span className="tab-indicator-dot" aria-hidden="true" />
             Block
@@ -38,13 +39,12 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             type="button"
             role="tab"
             aria-selected={mode === 'path'}
-            disabled
-            className="control-tab-btn disabled"
-            title="Path routing network mode arrives in Phase 4"
-            aria-disabled="true"
+            className={`control-tab-btn ${mode === 'path' ? 'active' : ''}`}
+            onClick={() => onModeChange('path')}
+            title="Path mode: network routing with profile-specific preferences"
           >
+            <span className="tab-indicator-dot" aria-hidden="true" />
             Path
-            <span className="sub-badge">Phase 4</span>
           </button>
         </div>
       </div>

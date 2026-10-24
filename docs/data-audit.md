@@ -371,3 +371,70 @@ No files were modified. No datasets were downloaded or substituted.
 
 
 
+
+## 13. Phase 4 Implementation & Verification Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete.
+- **Path Mode Activation:**
+  - Enabled the Path mode tab control in `ControlBar.tsx`.
+  - Switching between Block and Path modes preserves the active profile and map state without resetting or breaking.
+  - In Path mode: Block fills are subdued (`fill-opacity: 0.15` / `0.05`), allowing the street network and calculated routes to dominate while maintaining 3D buildings and block outlines for spatial orientation.
+  - In Block mode: All Phase 1–3 behaviors, 4,433 urban blocks, 5-tier density gradients, markers, 3D buildings, popups, and legends remain fully functional.
+- **Network Graph Construction & Snapping:**
+  - Constructed network graph directly from the 11,858 OpenStreetMap highway lines in `chandigarh_osm.geojson` (which verified 100% inclusion of `chandigarh_pedestrian.geojson` and `chandigarh_cycleways.geojson`).
+  - Graph metrics: 45,975 connected vertices and 105,876 directed edges in memory built in ~150 ms without blocking the UI.
+  - Snap tolerance: 1e-7 degrees (~1.1 cm) exact OSM vertex coincidence.
+  - Max click snap tolerance: 250 meters. Spatial hash grid (0.005° cells) allows sub-millisecond edge projection.
+  - Prohibited edges: `highway=construction`, `access=no`, and `access=military` strictly excluded.
+- **Routing Engine & Profile Cost Optimization:**
+  - Algorithm: In-browser Dijkstra with binary MinHeap priority queue (execution time ~20–45 ms).
+  - Virtual endpoint injection: Snaps Start (A) and Destination (B) to edge projections, injecting temporary nodes and routing seamlessly along exact street centerlines.
+  - Documented Speed Assumptions:
+    - Wheelchair: 3.6 km/h (~1.0 m/s manual wheelchair / accessible walk pace).
+    - Bicycle: 15.0 km/h (~4.17 m/s urban cycling cruising pace).
+    - Night walk: 4.5 km/h (~1.25 m/s pedestrian transit pace).
+  - Cost Formulas:
+    - Base cost: Edge length in meters via Haversine formula.
+    - Wheelchair:
+      - `highway=steps`: 500x penalty (impassable stairs barrier).
+      - `highway in [footway, pedestrian, path]`: 0.6x multiplier (40% preference bonus).
+      - `highway=living_street`: 0.85x multiplier.
+      - Arterial highways without sidewalks (`primary`, `trunk`): 2.5x avoidance penalty.
+      - `wheelchair=yes`: 0.5x bonus; `wheelchair=no`: 50x penalty.
+      - Unknown accessibility is treated as unrated (neutral 1.0x).
+      - Bidirectional routing across all ways (ignores vehicular oneway).
+    - Bicycle:
+      - One-way enforcement: Riding backwards on `oneway=yes` is forbidden (`cost = Infinity`) unless `oneway:bicycle=no`.
+      - Dedicated cycleways (`highway=cycleway`): 0.4x multiplier (60% preference bonus).
+      - Segregated roadside cycle tracks (`cycleway:left/right/both`): 0.5x multiplier (50% bonus).
+      - `bicycle=no`: 50x penalty; `highway=steps`: 50x penalty.
+      - Untagged arterial highways without cycle tracks (`primary`, `trunk`): 2.2x avoidance penalty.
+      - Living street / residential: 0.95x multiplier.
+    - Night:
+      - Walkable/road network substrate.
+      - Verified street lighting (`lit=yes`): 0.8x multiplier (20% bonus).
+      - Near verified 24/7 service (within 150m of hospital, police, or 24/7 store): 0.85x multiplier (15% modest bonus).
+      - Arterial highways: 1.3x avoidance penalty.
+      - UI explicitly clarifies: Proximity to 24/7 services and lighting does not prove safety.
+- **UI & Routing Controls:**
+  - Floating `RoutingPanel` on top-left:
+    - Interactive endpoint selectors for Start (A) and Destination (B).
+    - Quick landmark presets (Sector 17 Plaza, Rose Garden, GMSH Hospital, PGIMER, Sukhna Lake, Sector 35, etc.).
+    - Map click selection with snapping distance display.
+    - Swap endpoints (reverse route) and New Route reset buttons.
+    - Route metrics: Distance calculated strictly from network LineString geometry; travel time based on explicit speed assumption.
+    - Highway segment breakdown percentages.
+    - Graceful error messaging for disconnected networks or clicks > 250m from roads (no straight-line fake routes).
+  - Feature Popups: Added "Set as Start (A)" and "Set as Dest (B)" buttons to all feature popups in Path mode.
+  - Map Markers: Custom glowing circular pins for Start (emerald "A") and Destination (rose "B").
+  - Route Line: Glowing dark casing (8.5px) + profile-colored route line (4.5px).
+- **Verification & Testing:**
+  - Production build: `tsc -b && vite build` clean.
+  - Linting: `eslint .` clean (0 errors, 0 warnings).
+  - Browser verification with Playwright on live dev server:
+    - Block & Path mode toggling verified.
+    - Preset and click-based routing verified.
+    - Differentiated routing geometry verified across Wheelchair, Bicycle, and Night profiles.
+    - Reset, reverse, and out-of-tolerance handling verified.
+    - 0 console errors, 0 failed network requests.
+    - Saved screenshots in `references/screenshots/`: `phase4_block_bicycle.png`, `phase4_path_bicycle.png`, `phase4_path_wheelchair.png`, `phase4_path_night.png`, `phase4_map_click_route.png`.
