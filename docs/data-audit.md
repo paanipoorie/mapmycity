@@ -284,7 +284,7 @@ No files were modified. No datasets were downloaded or substituted.
 
 ## 12. Phase 2 Implementation & Verification Record (Completed 2026-10-24)
 
-- **Milestone status:** Complete. Phase 2: Block Generation and Profile Gradients.
+- **Milestone status:** Complete. Commit `161b804` ("Phase 2: block generation, profile feature assignment, and density gradients").
 - **Urban Block Generation Pipeline:**
   - Script: `scripts/generate-blocks.mjs` (registered as `npm run generate-blocks` in `package.json`). Fully reproducible and deterministic.
   - Planar graph constructed from 11,858 OpenStreetMap highway lines (46,084 snapped nodes at ~1 cm precision, 53,063 split edges).
@@ -301,12 +301,15 @@ No files were modified. No datasets were downloaded or substituted.
   - **Wheelchair Profile:** 354 blocks with mapped features. Mapped pedestrian footways/sidewalks (755 lines from `chandigarh_pedestrian.geojson`) + explicit wheelchair accessibility tags/ramps (from `chandigarh_accessibility.geojson`).
   - **Bicycle Profile:** 569 blocks with mapped features. Dedicated cycleways (12 lines from `chandigarh_cycleways.geojson` + 807 cycle-track road segments from `chandigarh_osm.geojson`) + 4 verified bicycle parking points (`chandigarh_bicyclepark.geojson`).
   - **Night Profile:** 61 blocks with mapped features. 67 hospitals (`chandigarh_hospitals.geojson`) + 8 police stations (`chandigarh_police.geojson`) + 4 verified 24/7 convenience stores (`chandigarh_24shops.geojson` + OSM 24/7 commercial feature).
-- **Density Measures & Normalization:**
+- **Density Measures & Empirical Calibration:**
   - Density formulas per unit area (km²):
     - `night_density = night_features_count / area_km2` (services/km²)
     - `bicycle_density = (cycleway_length_km + bicycle_parking_count) / area_km2` (score/km²)
     - `wheelchair_density = (pedestrian_length_km + wheelchair_tags_count) / area_km2` (features/km²)
-  - Calibrated 5-tier classification (Tier 0: None [0]; Tier 1: Low; Tier 2: Moderate; Tier 3: High; Tier 4: Very High) mapped to distinct chromatic gradients inspired by Blockprint.
+  - Calibrated 5-tier classification mapped to distinct chromatic gradients inspired by Blockprint:
+    - **Wheelchair (Teal/Emerald):** Tier 0 (0), Tier 1 (<5), Tier 2 (5–25), Tier 3 (25–50), Tier 4 (>50 features/km²).
+    - **Bicycle (Bronze/Amber/Gold):** Tier 0 (0), Tier 1 (<10), Tier 2 (10–30), Tier 3 (30–80), Tier 4 (>80 score/km²).
+    - **Night (Violet/Lilac):** Tier 0 (0), Tier 1 (<20), Tier 2 (20–50), Tier 3 (50–100), Tier 4 (>100 services/km²).
   - Prominent UI disclaimer: Gradient represents mapped feature density in OpenStreetMap, not overall safety, quality, or accessibility.
 - **UI & Interaction:**
   - Added Mode Selector: Block (active) vs Path (disabled, marked "Phase 4").
@@ -317,5 +320,8 @@ No files were modified. No datasets were downloaded or substituted.
   - Lint: `npm run lint` clean (0 errors, 0 warnings).
   - Build: `npm run build` clean (TypeScript + Vite production bundle).
   - Browser tests: Verified via Playwright at `http://127.0.0.1:5199/` with 0 console errors and 0 network failures. Profile transitions (Wheelchair, Bicycle, Night), gradient update, and Reset Camera verified.
+- **Known Limitations:**
+  - OSM Data Sparsity: Only 4 bicycle parking points and 4 verified 24/7 stores exist in the mapped data for the entire city. The gradient strictly reflects mapped presence in OpenStreetMap, not real-world safety or completeness.
+  - Path Mode: Intentionally disabled per Phase 2 scope; network graph routing is slated for Phase 4.
 
 
