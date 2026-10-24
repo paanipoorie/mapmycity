@@ -121,9 +121,13 @@ export function calculateEdgeCost(
     if (p.wheelchair === 'no') multiplier *= 50.0;
     // Note: unknown accessibility stays neutral (multiplier 1.0)
   } else if (profile === 'bicycle') {
-    // 1. Check one-way directionality for bicycles
-    if (p.oneway === 'yes' && !edge.isForward && p['oneway:bicycle'] !== 'no') {
-      return Infinity; // forbidden to ride backwards against oneway street
+    // 1. Check one-way directionality for bicycles (including roundabouts)
+    if (
+      (p.oneway === 'yes' || p.junction === 'roundabout') &&
+      !edge.isForward &&
+      p['oneway:bicycle'] !== 'no'
+    ) {
+      return Infinity; // forbidden to ride backwards against oneway street or roundabout
     }
 
     if (hw === 'steps') {
@@ -197,23 +201,40 @@ export function calculateRoute(
   const DEST_KEY = '__DEST__';
 
   const speedKmh = PROFILE_SPEEDS_KMH[profile];
+  const pStart = startSnap.coordinates;
+  const pDest = destSnap.coordinates;
+  const directDist = haversineMeters(
+    pStart[0],
+    pStart[1],
+    pDest[0],
+    pDest[1]
+  );
 
-  // Case 0: Start and Destination snap to the EXACT same edge segment
+  // Case 0A: Identical start and destination coordinates (< 1 cm apart)
+  if (directDist < 0.01) {
+    return {
+      success: true,
+      coordinates: [pStart, pDest],
+      distanceMeters: 0,
+      durationMinutes: 0,
+      speedKmh,
+      profile,
+      segmentBreakdown: {},
+      startSnapped: pStart,
+      destSnapped: pDest,
+    };
+  }
+
+  // Case 0B: Start and Destination snap to the EXACT same edge segment
   if (startSnap.edge.id === destSnap.edge.id) {
-    const pStart = startSnap.coordinates;
-    const pDest = destSnap.coordinates;
-    const directDist = haversineMeters(
-      pStart[0],
-      pStart[1],
-      pDest[0],
-      pDest[1]
-    );
-
     // Verify one-way for bicycle
     let isValidDirect = true;
     if (profile === 'bicycle') {
       const p = startSnap.edge.props;
-      if (p.oneway === 'yes' && p['oneway:bicycle'] !== 'no') {
+      if (
+        (p.oneway === 'yes' || p.junction === 'roundabout') &&
+        p['oneway:bicycle'] !== 'no'
+      ) {
         // If one-way, must travel in forward direction (startSnap.t <= destSnap.t)
         if (startSnap.t > destSnap.t) {
           isValidDirect = false;
@@ -221,7 +242,7 @@ export function calculateRoute(
       }
     }
 
-    if (isValidDirect && directDist > 0) {
+    if (isValidDirect) {
       const hw = (startSnap.edge.props.highway as string) || 'residential';
       return {
         success: true,

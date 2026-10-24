@@ -766,6 +766,27 @@
     bottom: 74px;
     width: auto;
   }
+
+  /* Responsive layout in Path mode */
+  .mode-path .hud-description {
+    display: none;
+  }
+
+  .mode-path .hud-panel.top-left {
+    padding: 10px 14px;
+  }
+
+  .mode-path .routing-hud-panel {
+    top: 74px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100vh - 150px);
+  }
+
+  .mode-path .legend-panel {
+    display: none;
+  }
 }
 
 
@@ -1245,6 +1266,25 @@
   line-height: 1.35;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 6px;
+}
+
+/* Wheelchair Barrier Warning */
+.wheelchair-barrier-warning {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  color: #fda4af;
+  line-height: 1.35;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.wheelchair-barrier-warning .warning-icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
 }
 
 /* Route Error Card */

@@ -438,3 +438,51 @@ No files were modified. No datasets were downloaded or substituted.
     - Reset, reverse, and out-of-tolerance handling verified.
     - 0 console errors, 0 failed network requests.
     - Saved screenshots in `references/screenshots/`: `phase4_block_bicycle.png`, `phase4_path_bicycle.png`, `phase4_path_wheelchair.png`, `phase4_path_night.png`, `phase4_map_click_route.png`.
+
+## 14. Phase 5 Implementation & Verification Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete. Final Integration, Validation, and Demo Readiness.
+- **Routing Correctness & Topological Integrity:**
+  - Tested origin/destination pairs across Wheelchair, Bicycle, and Night profiles. Confirmed all routes strictly follow connected OSM network LineString geometry; straight-line routing is never used as a fallback.
+  - Tested identical start and destination endpoints: returns exact 0 m distance, 0 min duration, cleanly clearing or displaying zero-length metrics without erroneous edge loop calculations.
+  - Tested route reversal: clicking the Swap button (`⇅`) reverses Start and Destination endpoints, immediately recalculating the route symmetrically on bidirectional ways and re-evaluating directionality constraints.
+  - Tested clearing routes: clearing Start, Destination, or clicking "New Route" removes the route geometry and markers from the map and returns the routing panel to its initial selection prompt.
+  - Tested out-of-tolerance inputs (> 250m from mapped streets): queries return an honest snap error notice and refuse to draw disconnected straight lines.
+  - Tested unreachable / disconnected components: graph Dijkstra fails gracefully with `success: false` and displays an explicit limitation notice rather than connecting disconnected components.
+  - Tested intersection splitting & snapping: network graph strictly connects edges at shared OSM node vertices; grade-separated crossings (79 bridges, 16 tunnels) lacking shared nodes in OSM are never falsely connected solely because their lines cross in 2D projection.
+  - Tested one-way bicycle handling: forward directionality enforced on `oneway=yes` and `junction=roundabout`; backwards traversal prohibited unless `oneway:bicycle=no`. Verified that downstream-to-upstream trips on one-way streets correctly route around the block network in legal forward flow.
+- **Factual Data Reconciliation:**
+  - Verified 24/7 stores: exactly 3 point features in `public/data/chandigarh_24shops.geojson` (Nik Baker's, 24 Seven, 24Seven) with explicit `opening_hours: 24/7`. One additional commercial polygon in `chandigarh_osm.geojson` has `opening_hours: 24/7` (Churi House, Sector 22D). Point layer on map renders the 3 dedicated points; Block mode density calculation accounts for all 4 mapped 24/7 establishments. No generic shops are treated as 24-hour.
+  - Pedestrian features: `chandigarh_pedestrian.geojson` contains 775 LineString features: exactly 745 walkable paths/footways (`highway != steps`) and 30 stairs/steps (`highway == steps`). UI legends and routing breakdown display these counts and categorizations accurately.
+  - Cycling infrastructure: `chandigarh_cycleways.geojson` contains exactly 12 dedicated cycleway lines; `chandigarh_osm.geojson` contains 784 corridor cycle tracks/lanes (`cycleway:left/right/both/cycleway`); `chandigarh_bicyclepark.geojson` contains 4 verified bicycle parking locations.
+  - Wheelchair tags: 8 explicit wheelchair point locations in `chandigarh_wheelchair_points.geojson` (3 accessible `yes`, 4 limited `limited`, 1 inaccessible `no`).
+  - Graph topology: in-memory network graph contains 45,975 vertices, 52,938 unique undirected edges, and 105,876 directed edges in the adjacency list.
+- **Profile Behavior Validation:**
+  - Wheelchair: 500x penalty applied to known stairs (`highway=steps`) without ramps; pedestrian footways receive a 40% preference bonus (`0.6x`). If a route must traverse stairs, a prominent `⚠️ Stairs Alert` is displayed in the summary. Unknown accessibility remains unrated (multiplier 1.0x); UI disclaimer clearly clarifies that routes are not guaranteed barrier-free.
+  - Bicycle: dedicated cycleways (`0.4x`) and segregated corridor tracks (`0.5x`) strongly prioritized. Untagged major arterials penalized (`2.2x`). One-way flow strictly enforced.
+  - Night: verified street lighting (`0.8x`) and corridors within 150m of 24/7 emergency services (`0.85x`) receive modest preference bonuses. UI disclaimers explicitly reiterate that service proximity and lighting do not prove safety.
+  - Speed assumptions: Wheelchair 3.6 km/h, Bicycle 15.0 km/h, Night pedestrian 4.5 km/h clearly documented in UI footnotes and routing summaries.
+- **Demo & Viewport Polish:**
+  - Responsive layout verified across desktop (1280x800) and mobile (390x844).
+  - On mobile: in Path mode, the header auto-compacts to 10px padding and hides descriptive text, while the legend panel is hidden to prevent overlapping the route card, giving maximum screen space for routing. In Block mode on mobile, the Legend is collapsible via a slim Hide/Show bar above the bottom controls.
+  - In Path mode on desktop, the Legend defaults to collapsed to minimize visual clutter while allowing one-click expansion.
+  - Segment breakdown labels polished with human-readable names (Multi-use Path, Service / Access Lane, Living Street, Stairs / Steps, etc.).
+  - Preserved 3D building extrusions, dark basemap, pitch navigation, metric scale, and attribution.
+- **Verification Suite & Quality Record:**
+  - Automated verification script: `scripts/verify-phase5-data-and-routes.mjs` (registered as `npm run verify-phase5`) executed with 100% pass rate across data audits, 243 landmark preset routes, edge snapping, identical endpoints, one-way enforcement, and route reversal.
+  - Production build: `tsc -b && vite build` clean.
+  - Linting: `eslint .` clean (0 errors, 0 warnings).
+  - Live browser tests: executed via Playwright MCP server with 0 console errors and 0 failed network requests.
+  - Saved screenshots in `references/screenshots/`:
+    - `phase5_block_wheelchair.png`
+    - `phase5_block_bicycle.png`
+    - `phase5_block_night.png`
+    - `phase5_path_wheelchair.png`
+    - `phase5_path_bicycle.png`
+    - `phase5_path_night.png`
+    - `phase5_mobile_path.png`
+    - `phase5_mobile_block.png`
+- **Known Limitations & Remaining Risks:**
+  - Data sparsity: OSM tags for accessibility (`kerb`, `tactile_paving`, `barrier`) remain 0 in source datasets for Chandigarh. Wheelchair routing can only prioritize mapped walkways and avoid stairs, but cannot verify sidewalk smoothness or curb ramps.
+  - Disconnected sidewalk fragments: 80% of sidewalk endpoints do not touch road centerlines in OSM. Routing therefore runs on the unified street and path network rather than isolated sidewalk geometry.
+  - Night safety: proximity to 24/7 services and lighting is an urban feature proxy, not a real-time safety index.

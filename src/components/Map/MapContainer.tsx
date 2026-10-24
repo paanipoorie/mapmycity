@@ -1493,7 +1493,7 @@ export const MapContainer: React.FC = () => {
   );
 
   return (
-    <div className="map-view-wrapper">
+    <div className={`map-view-wrapper mode-${mode}`}>
       <Header
         buildingCount={buildingCount}
         blockCount={blockCount}
@@ -1509,8 +1509,8 @@ export const MapContainer: React.FC = () => {
         onProfileChange={setActiveProfile}
       />
 
-      {/* Block Mode Legend */}
-      <Legend profile={activeProfile} totalBlocks={blockCount} />
+      {/* Profile Density & Markers Legend */}
+      <Legend profile={activeProfile} totalBlocks={blockCount} mode={mode} />
 
       {/* Path Mode Routing Panel */}
       {mode === 'path' && (

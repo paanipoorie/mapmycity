@@ -47,6 +47,7 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
   };
 
   const formatDuration = (minutes: number): string => {
+    if (minutes <= 0) return '0 min';
     if (minutes < 1) return '< 1 min';
     if (minutes >= 60) {
       const hrs = Math.floor(minutes / 60);
@@ -302,12 +303,20 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
                     if (dist < 10) return null;
                     let displayKey = k.replace(/_/g, ' ');
                     if (k === 'footway') displayKey = 'Pedestrian Footway';
+                    if (k === 'path') displayKey = 'Multi-use Path';
                     if (k === 'cycleway') displayKey = 'Dedicated Cycleway';
                     if (k === 'corridor_cycle_tracks')
                       displayKey = 'Segregated Cycle Tracks';
                     if (k === 'residential') displayKey = 'Residential Street';
+                    if (k === 'living_street') displayKey = 'Living Street (Pedestrian Priority)';
+                    if (k === 'service') displayKey = 'Service / Access Lane';
                     if (k === 'secondary') displayKey = 'Secondary Arterial';
+                    if (k === 'secondary_link') displayKey = 'Secondary Arterial Link';
                     if (k === 'tertiary') displayKey = 'Tertiary Collector';
+                    if (k === 'tertiary_link') displayKey = 'Tertiary Collector Link';
+                    if (k === 'primary') displayKey = 'Primary Highway';
+                    if (k === 'trunk') displayKey = 'Trunk Highway';
+                    if (k === 'steps') displayKey = '⚠️ Stairs / Steps (Physical Barrier)';
                     if (k === 'near_24h_services')
                       displayKey = 'Within 150m of 24/7 Services';
 
@@ -328,6 +337,18 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
               </div>
             </div>
           )}
+
+          {/* Wheelchair Barrier Warning if Stairs Present */}
+          {profile === 'wheelchair' &&
+            routeResult.segmentBreakdown['steps'] !== undefined &&
+            routeResult.segmentBreakdown['steps'] > 0 && (
+              <div className="wheelchair-barrier-warning" role="alert">
+                <span className="warning-icon" aria-hidden="true">⚠️</span>
+                <span>
+                  <strong>Stairs Alert:</strong> This route includes mapped steps/stairs ({formatDistance(routeResult.segmentBreakdown['steps'])}). Manual wheelchairs may require assistance.
+                </span>
+              </div>
+            )}
 
           {/* Honest Profile Disclaimers */}
           <div className="route-disclaimer">

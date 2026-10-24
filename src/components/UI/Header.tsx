@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="brand-group">
         <h1 className="brand-title">MapMyCity</h1>
         <span className={`phase-pill ${mode === 'path' ? 'path-active' : ''}`}>
-          {mode === 'path' ? 'Path Mode: Routing' : 'Phase 4: Path & Blocks'}
+          {mode === 'path' ? 'Path Mode: Network Routing' : 'Block Mode: 3D City & Density'}
         </span>
       </div>
 

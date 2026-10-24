@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-blocks": "node scripts/generate-blocks.mjs",
-    "generate-wheelchair-points": "node scripts/generate-wheelchair-points.mjs"
+    "generate-wheelchair-points": "node scripts/generate-wheelchair-points.mjs",
+    "verify-phase5": "node scripts/verify-phase5-data-and-routes.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.15.0",

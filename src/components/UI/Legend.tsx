@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
-import type { UserProfile } from '../../types/map.ts';
+import type { UserProfile, AppMode } from '../../types/map.ts';
 import { PROFILE_CONFIGS } from '../../config/mapConfig.ts';
 
 interface LegendProps {
   profile: UserProfile;
   totalBlocks: number | null;
+  mode?: AppMode;
 }
 
-export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks, mode = 'block' }) => {
+  // Track user manual toggle per mode; default: expanded in Block mode, collapsed in Path mode
+  const [userOverride, setUserOverride] = useState<{ mode: AppMode; isExpanded: boolean } | null>(null);
+  const isExpanded =
+    userOverride && userOverride.mode === mode
+      ? userOverride.isExpanded
+      : mode === 'block';
+
   const conf = PROFILE_CONFIGS[profile];
+
+  const handleToggle = () => {
+    setUserOverride({ mode, isExpanded: !isExpanded });
+  };
 
   return (
     <aside
@@ -27,7 +38,7 @@ export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks }) => {
         </div>
         <button
           type="button"
-          onClick={() => setIsExpanded((prev) => !prev)}
+          onClick={handleToggle}
           className="legend-toggle-btn"
           aria-expanded={isExpanded}
           aria-label={isExpanded ? 'Collapse legend' : 'Expand legend'}
