@@ -1,0 +1,1482 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-24T01:55:35Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/2082640",
+        "amenity": "hospital",
+        "building": "yes",
+        "healthcare": "hospital",
+        "name": "Nehru Hospital",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.776366,
+          30.7608716
+        ]
+      },
+      "id": "relation/2082640"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/113779330",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Superintended Hospital Engineer Building",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7755769,
+          30.7652264
+        ]
+      },
+      "id": "way/113779330"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129453616",
+        "addr:city": "Chandigarh",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sector-32, Chandigarh",
+        "addr:landmark": "Opposite CSIO",
+        "addr:postcode": "160030",
+        "addr:state": "Chandigarh",
+        "addr:street": "Sector-32",
+        "amenity": "hospital",
+        "description": "District Hospital",
+        "email": "dpgmch-chd@gmch.gov.in",
+        "emergency": "yes",
+        "fax": "0172-2609360",
+        "healthcare": "hospital",
+        "name": "GMCH SECTOR 32",
+        "name:en": "Government Medical College Hospital",
+        "operator:type": "government",
+        "phone": "0172-2601023",
+        "source": "OpenGovernmentData",
+        "start_date": "1991",
+        "website": "https://gmch.gov.in/",
+        "wikidata": "Q5513730",
+        "wikipedia": "en:Government Medical College and Hospital, Chandigarh",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7806946,
+          30.7091114
+        ]
+      },
+      "id": "way/129453616"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129453735",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.777462,
+          30.7085336
+        ]
+      },
+      "id": "way/129453735"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129782458",
+        "addr:city": "Chandigarh",
+        "addr:district": "Chandigarh",
+        "addr:landmark": "Near Rose Garden",
+        "addr:postcode": "160016",
+        "addr:state": "Chandigarh",
+        "addr:street": "GMSH-16",
+        "amenity": "hospital",
+        "contact:phone": "1722768119",
+        "description": "District Hospital",
+        "emergency": "yes",
+        "healthcare": "hospital",
+        "name": "GMSH Sector-16",
+        "source": "OpenGovernmentData",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7809469,
+          30.7508141
+        ]
+      },
+      "id": "way/129782458"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/155001233",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Cancer Hospital",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7810046,
+          30.7633931
+        ]
+      },
+      "id": "way/155001233"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/155001235",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "New OPD",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7808619,
+          30.7628956
+        ]
+      },
+      "id": "way/155001235"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/441046459",
+        "addr:city": "Chandigarh",
+        "addr:street": "Madhya Marg",
+        "amenity": "hospital",
+        "emergency": "yes",
+        "healthcare": "hospital",
+        "healthcare:speciality": "emergency",
+        "name": "PGI Emergency"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7762212,
+          30.7611013
+        ]
+      },
+      "id": "node/441046459"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1041037638",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "KD Cosmetic Surgery Centre,Sector 34-A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7689883,
+          30.7245237
+        ]
+      },
+      "id": "node/1041037638"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1153423420",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "RHTC Palsora",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7178481,
+          30.7347446
+        ]
+      },
+      "id": "way/1153423420"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1360772601",
+        "addr:city": "Chandigarh",
+        "addr:district": "CHANDIGARH",
+        "addr:housenumber": "32C, Sector 32, Chandigarh, 160047",
+        "addr:postcode": "160047",
+        "addr:street": "Chandi Path",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Mental Health Institute",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7751486,
+          30.7042635
+        ]
+      },
+      "id": "way/1360772601"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1832737201",
+        "addr:city": "Chandigarh",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sector-12",
+        "addr:postcode": "160012",
+        "addr:state": "Chandigarh",
+        "addr:street": "Madhya Marg",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "PGI Chandigarh",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7749653,
+          30.7614305
+        ]
+      },
+      "id": "node/1832737201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2457764868",
+        "amenity": "hospital",
+        "name": "Dispesary"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.798432,
+          30.6775899
+        ]
+      },
+      "id": "node/2457764868"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3404982354",
+        "addr:city": "Chandigarh",
+        "addr:district": "Chandigarh",
+        "addr:full": "# 846 Sector 38-A",
+        "addr:housenumber": "846",
+        "addr:postcode": "160014",
+        "addr:state": "Chandigarh",
+        "addr:street": "Site 846, Sector 38",
+        "amenity": "hospital",
+        "emergency": "yes",
+        "name": "Santokh Hospital",
+        "operator": "Dr KS santokh",
+        "phone": "+918558866846",
+        "source": "OpenGovernmentData",
+        "website": "https://www.santokhhospital.com/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7489881,
+          30.7478631
+        ]
+      },
+      "id": "node/3404982354"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4355006891",
+        "addr:district": "Chandigarh",
+        "addr:full": "H.No. 2040, Sector 15-C",
+        "addr:postcode": "160015",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Dharam Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7740258,
+          30.7491743
+        ]
+      },
+      "id": "node/4355006891"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4631274982",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Bharat Vikas Parishad Charitable Medical Centre"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.765978,
+          30.747535
+        ]
+      },
+      "id": "node/4631274982"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4701474502",
+        "addr:district": "Chandigarh",
+        "addr:full": "Site No: 1 & 2, Sec-33-C,Near Terrced Garden",
+        "addr:postcode": "160020",
+        "addr:state": "Chandigarh",
+        "addr:street": "33 sector",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Land Mark Hospital(Langol View Charitable Clinic and Maternity Home)",
+        "name:en": "Landmark Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7702748,
+          30.7122719
+        ]
+      },
+      "id": "node/4701474502"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4948021823",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "healthcare:speciality": "ophthalmology",
+        "name": "Advance Eye Center",
+        "name:en": "Advance Eye Center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7800519,
+          30.7639495
+        ]
+      },
+      "id": "node/4948021823"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6612985317",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Government Pet Hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7714736,
+          30.7329698
+        ]
+      },
+      "id": "node/6612985317"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6907693413",
+        "addr:district": "Chandigarh",
+        "addr:full": "# 11, Sector-11A, Chandigarh",
+        "addr:postcode": "160011",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "fax": "2744397",
+        "healthcare": "hospital",
+        "name": "Rameshwara Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7843183,
+          30.7583074
+        ]
+      },
+      "id": "node/6907693413"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065242",
+        "addr:district": "Chandigarh",
+        "addr:full": "3314, Near Gurudwara Sahib, Sec-19-D",
+        "addr:postcode": "160019",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Oxford Heart and Multispeciality Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7898551,
+          30.7287476
+        ]
+      },
+      "id": "node/6908065242"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065247",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sco No.47 - 49,Sector - 34A, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "fax": "2660689",
+        "healthcare": "hospital",
+        "name": "Mukat Hospital and Heart Institute",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7703393,
+          30.7228358
+        ]
+      },
+      "id": "node/6908065247"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065252",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sco-341-42, Sector-34A, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Nins Brain and Spine Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7669463,
+          30.7218259
+        ]
+      },
+      "id": "node/6908065252"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065257",
+        "addr:district": "Puducherry",
+        "addr:full": "No-90,Vazhuthavur Main Road,V.V.P Nagar",
+        "addr:postcode": "605009",
+        "addr:state": "Puducherry",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Ashwini Maternity Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7578912,
+          30.719376
+        ]
+      },
+      "id": "node/6908065257"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065262",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sector: 34/A, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Inscol Tertiary Care Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7656857,
+          30.723938
+        ]
+      },
+      "id": "node/6908065262"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065267",
+        "addr:district": "Chandigarh",
+        "addr:full": "3026, Sec-21 D",
+        "addr:postcode": "160036",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Deep Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7483211,
+          30.7635999
+        ]
+      },
+      "id": "node/6908065267"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065272",
+        "addr:district": "Chandigarh",
+        "addr:full": "CHC, Sector - 22",
+        "addr:landmark": "Opposite Nehru Park",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "addr:street": "Sector -22",
+        "amenity": "hospital",
+        "contact:phone": "1722773711",
+        "description": "Civil Hospital",
+        "healthcare": "hospital",
+        "name": "Civil Hospital-Sector 22",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7716616,
+          30.7324319
+        ]
+      },
+      "id": "node/6908065272"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065278",
+        "addr:district": "Chandigarh",
+        "addr:full": "Site No.1 and 2, Sector 44-C",
+        "addr:postcode": "160047",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "contact:phone": "9988808880",
+        "email": "info@chaitanyahospital.org",
+        "healthcare": "hospital",
+        "healthcare:speciality": "Obstetrics;Gynaecology",
+        "name": "Chaitanya Hospital",
+        "operator:type": "private",
+        "source": "OpenGovernmentData",
+        "website": "https://www.chaitanyahospital.org/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7541911,
+          30.7107483
+        ]
+      },
+      "id": "node/6908065278"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908065283",
+        "addr:district": "Chandigarh",
+        "addr:full": "S C O 166-167-168-169, Madhya Marg, Sector-9-C",
+        "addr:postcode": "160009",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Grewal Eye Institute",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7909159,
+          30.7420224
+        ]
+      },
+      "id": "node/6908065283"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908090589",
+        "addr:district": "Chandigarh",
+        "addr:full": "Civil Hospital Manimajra",
+        "addr:landmark": "Near Fun Republic Manimajra",
+        "addr:postcode": "160101",
+        "addr:state": "Chandigarh",
+        "addr:street": "Old Ropar Road",
+        "amenity": "hospital",
+        "contact:phone": "1722751004",
+        "description": "civil hospital",
+        "healthcare": "hospital",
+        "locality": "Near Motor Market",
+        "name": "Civil hospital, Manimajra",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8424183,
+          30.7128525
+        ]
+      },
+      "id": "node/6908090589"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908100816",
+        "addr:district": "Chandigarh",
+        "addr:full": "Koti No. 201, Sector 35 - A",
+        "addr:postcode": "160015",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Abhilasha Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7594992,
+          30.7279522
+        ]
+      },
+      "id": "node/6908100816"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111123",
+        "addr:district": "Chandigarh",
+        "addr:full": "801, Mani Majra",
+        "addr:postcode": "160101",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Arya Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.832989,
+          30.7174644
+        ]
+      },
+      "id": "node/6908111123"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111137",
+        "addr:district": "Chandigarh",
+        "addr:full": "150, Sector 40B",
+        "addr:postcode": "160047",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Dabur Dhanwantry Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7671408,
+          30.6999404
+        ]
+      },
+      "id": "node/6908111137"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111148",
+        "addr:district": "Chandigarh",
+        "addr:full": "S.C.O. 66, Sector-20 C, Tribune Road",
+        "addr:postcode": "160020",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Arthoscopy and Spinal Endoscopy Centre",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7777958,
+          30.716308
+        ]
+      },
+      "id": "node/6908111148"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111153",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sco No. 226-227,Sector-34-A",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Virdi Eye Hospital(Virk Hospital)",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7686281,
+          30.7198176
+        ]
+      },
+      "id": "node/6908111153"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111159",
+        "addr:district": "Chandigarh",
+        "addr:full": "#2103, Sector, 35-C, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "fax": "2661789",
+        "name": "Mangnum Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7604969,
+          30.7237708
+        ]
+      },
+      "id": "node/6908111159"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111164",
+        "addr:district": "Chandigarh",
+        "addr:full": "# 140, Sector-35-A, Near Kisan Bhavan",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Grover Eye Laser and E.N.T Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7603199,
+          30.7301782
+        ]
+      },
+      "id": "node/6908111164"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111174",
+        "addr:district": "Chandigarh",
+        "addr:full": "182, 33A, Sector 33, A, Chandigarh",
+        "addr:postcode": "160020",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Bedi Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7693818,
+          30.7176996
+        ]
+      },
+      "id": "node/6908111174"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111185",
+        "addr:district": "Chandigarh",
+        "addr:full": "Postgraduate Institute of Medical Education andResearch, Sector-12",
+        "addr:landmark": "Opposite Panjab Universty",
+        "addr:postcode": "160012",
+        "addr:state": "Chandigarh",
+        "addr:street": "Sector-12",
+        "amenity": "hospital",
+        "contact:phone": "0172-2755220",
+        "description": "Medical Colleges Hospital",
+        "healthcare": "hospital",
+        "name": "Postgraduate Institute of Medical Education and Research (PGIMER)",
+        "operator:type": "government",
+        "source": "OpenGovernmentData",
+        "website": "https://pgimer.edu.in/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7762778,
+          30.7643681
+        ]
+      },
+      "id": "node/6908111185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111195",
+        "addr:district": "Chandigarh",
+        "addr:full": "S.C.O. 166, Sector-37-C, First Floor, Chandigarh",
+        "addr:postcode": "160036",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Neeraj Eye Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7525804,
+          30.734221
+        ]
+      },
+      "id": "node/6908111195"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111200",
+        "addr:district": "Chandigarh",
+        "addr:full": "Site No.2,Sec-46D, Chandigarh",
+        "addr:postcode": "160047",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Kapoor's Kidney and Urostone Centre Pvt.Ltd.",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7620003,
+          30.7029628
+        ]
+      },
+      "id": "node/6908111200"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111214",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sco- 343 - 345, Sector 34- A, Opposite Gurudwara Sector 34",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Omni Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7669718,
+          30.7216968
+        ]
+      },
+      "id": "node/6908111214"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6908111219",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sco - 831, Nac, Manimajra",
+        "addr:postcode": "160101",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Tricity Hospital Pvt. Ltd.",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8429682,
+          30.7104462
+        ]
+      },
+      "id": "node/6908111219"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7003235215",
+        "addr:district": "Panchkula",
+        "addr:full": "Nursing Home Site No.-1,Adjoining Gh-34, Sector-5, (Mansadevi Complex)",
+        "addr:postcode": "134109",
+        "addr:state": "Haryana",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Happy Family Maternitys Children Hospital Pvt Ltd",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8389341,
+          30.7158261
+        ]
+      },
+      "id": "node/7003235215"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7053641550",
+        "addr:district": "S.A.S Nagar",
+        "addr:full": "SCO-49,Sector 42-C,Near Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Punjab",
+        "amenity": "hospital",
+        "name": "Kaushal Hospital, Chandigarh",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7447786,
+          30.722908
+        ]
+      },
+      "id": "node/7053641550"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7111403693",
+        "addr:district": "Chandigarh",
+        "addr:landmark": "Behind Sabji Mandi",
+        "addr:postcode": "160019",
+        "addr:state": "Chandigarh",
+        "addr:street": "Sector 26",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Police Hospital",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8122966,
+          30.7232383
+        ]
+      },
+      "id": "node/7111403693"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7111403701",
+        "addr:district": "Chandigarh",
+        "addr:postcode": "160002",
+        "addr:state": "Chandigarh",
+        "addr:street": "Ramdarbar",
+        "amenity": "hospital",
+        "description": "General Hospital",
+        "healthcare": "hospital",
+        "locality": "Industrial Area",
+        "name": "ESIC Hospital Ramdarbar",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.787964,
+          30.696743
+        ]
+      },
+      "id": "node/7111403701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7111403705",
+        "addr:district": "Chandigarh",
+        "addr:landmark": "Airport Chowk",
+        "addr:postcode": "160003",
+        "addr:state": "Chandigarh",
+        "addr:street": "Industrial Area Phase II",
+        "amenity": "hospital",
+        "contact:phone": "1722655752",
+        "name": "Composite Hospital I.T.B.P",
+        "source": "OpenGovernmentData"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.807281,
+          30.677988
+        ]
+      },
+      "id": "node/7111403705"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206523",
+        "addr:district": "Chandigarh",
+        "addr:full": "48, Phase-2, Industrial Area Phase I, Chandigarh,",
+        "addr:postcode": "160002",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Cloudnine Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7875764,
+          30.7001359
+        ]
+      },
+      "id": "node/7473206523"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206527",
+        "addr:district": "Chandigarh",
+        "addr:full": "Plot No.6, Phase 3 A, Sector 53, Chandigarh",
+        "addr:postcode": "160059",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Babe Ke Hospital And IMT",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.732464,
+          30.724507
+        ]
+      },
+      "id": "node/7473206527"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206529",
+        "addr:district": "Chandigarh",
+        "addr:full": "Sector 40A, Ground Floor, Chandigarh",
+        "addr:postcode": "160036",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Nirmal Dr. Bhasin Jannee Fertility Centre",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7356685,
+          30.7421389
+        ]
+      },
+      "id": "node/7473206529"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206532",
+        "addr:district": "Chandigarh",
+        "addr:full": "SCO 2463-2464, 2nd Floor, JW Marriott Hotel Aroma Lane, 22C, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Dr. Ashok Sharma's Cornea Centre",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7694571,
+          30.7276054
+        ]
+      },
+      "id": "node/7473206532"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206533",
+        "addr:district": "Chandigarh",
+        "addr:full": "473, 32A, Sector 32, Chandigarh",
+        "addr:postcode": "160047",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Dr. Chandan Trikha Homeopathic Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7774089,
+          30.7127888
+        ]
+      },
+      "id": "node/7473206533"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206534",
+        "addr:district": "Chandigarh",
+        "addr:full": "2413 c, sco, Sector 22, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7725,
+          30.7314168
+        ]
+      },
+      "id": "node/7473206534"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206535",
+        "addr:district": "Chandigarh",
+        "addr:full": "1151, 36 C, Near Park, Sector 36, Chandigarh",
+        "addr:postcode": "160036",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Pandhi Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.752325,
+          30.7266382
+        ]
+      },
+      "id": "node/7473206535"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206543",
+        "addr:district": "Chandigarh",
+        "addr:full": "1550, Sector 7-C, Chandigarh",
+        "addr:postcode": "160019",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Dr. Priyanka Sharma Gynaecologist",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.800628,
+          30.735249
+        ]
+      },
+      "id": "node/7473206543"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206547",
+        "addr:district": "Chandigarh",
+        "addr:full": "SCO 10, 11, Madhya Marg, Sector 8C, Sector 9, Chandigarh",
+        "addr:postcode": "160009",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Chd City Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7942557,
+          30.7417091
+        ]
+      },
+      "id": "node/7473206547"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206548",
+        "addr:district": "Chandigarh",
+        "addr:full": "Dr.P.N.Chhuttani Memorial IMA Complex, 35B, Sector 35, Chandigarh",
+        "addr:postcode": "160022",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Guru Nanak Multispeciality Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7622902,
+          30.7255395
+        ]
+      },
+      "id": "node/7473206548"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206560",
+        "addr:district": "Chandigarh",
+        "addr:full": "Near Dilshad confectionery, Maloya, Chandigarh",
+        "addr:postcode": "160025",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Kaushal Clinic & Clinical Lab",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7173534,
+          30.7525838
+        ]
+      },
+      "id": "node/7473206560"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206562",
+        "addr:district": "Chandigarh",
+        "addr:full": "SCO 11, Sector 11D, Sector 11, Chandigarh",
+        "addr:postcode": "160011",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Fortis Medcentre Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7820366,
+          30.7606212
+        ]
+      },
+      "id": "node/7473206562"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206566",
+        "addr:district": "Chandigarh",
+        "addr:full": "S.C.O 52 - 53 - 54, Bridge Market, 17C, Sector 17, Chandigarh",
+        "addr:postcode": "160017",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Chhuttani Medical Centre - Psychiatrist & De-addiction Centre",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.782629,
+          30.740194
+        ]
+      },
+      "id": "node/7473206566"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206571",
+        "addr:district": "Chandigarh",
+        "addr:full": "House No- 2125, Near Tulasi Das Library, Sector 21C, Chandigarh",
+        "addr:postcode": "160002",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "ARV Othopaedic Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7732467,
+          30.7264061
+        ]
+      },
+      "id": "node/7473206571"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206572",
+        "addr:district": "Chandigarh",
+        "addr:full": "Plot No-115, Near Hometel Hotel, Phase 1, Chandigarh",
+        "addr:postcode": "160002",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Eden Hospital",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8027108,
+          30.7091481
+        ]
+      },
+      "id": "node/7473206572"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206590",
+        "addr:district": "Chandigarh",
+        "addr:full": "House No, 1204, Sector 18-C, Sector 18, Chandigarh",
+        "addr:postcode": "160018",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Mamta Child Health Care Centre",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7849987,
+          30.7313883
+        ]
+      },
+      "id": "node/7473206590"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7473206592",
+        "addr:district": "Chandigarh",
+        "addr:full": "SCO No. 23, Sector, 33D, Sector 33, Chandigarh",
+        "addr:postcode": "160047",
+        "addr:state": "Chandigarh",
+        "amenity": "hospital",
+        "name": "Sarhind Orthopaedic Multispeciality Medical Centre",
+        "source": "Local Knowledge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7687413,
+          30.7134331
+        ]
+      },
+      "id": "node/7473206592"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12597187787",
+        "addr:city": "Chandigarh",
+        "addr:district": "CHANDIGARH",
+        "addr:housenumber": "PQ3H+835, 31D, Sector 31, Chandigarh, 160030",
+        "addr:postcode": "160030",
+        "addr:street": "Chandi Path",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Air Force Hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7775151,
+          30.7033952
+        ]
+      },
+      "id": "node/12597187787"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12597209820",
+        "addr:city": "Chandigarh",
+        "addr:district": "CHANDIGARH",
+        "addr:housenumber": "32C, Sector 32, Chandigarh, 160047",
+        "addr:postcode": "160047",
+        "addr:street": "Chandi Path",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Mental Health Institute"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7751977,
+          30.7042318
+        ]
+      },
+      "id": "node/12597209820"
+    }
+  ]
+}

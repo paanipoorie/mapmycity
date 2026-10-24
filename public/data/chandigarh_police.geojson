@@ -1,0 +1,147 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-24T03:24:54Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/2094678",
+        "amenity": "police",
+        "building": "yes",
+        "name": "Sector 3 Police Station",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7969954,
+          30.7568077
+        ]
+      },
+      "id": "relation/2094678"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129560199",
+        "amenity": "police",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7963637,
+          30.7121019
+        ]
+      },
+      "id": "way/129560199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129774478",
+        "amenity": "police",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7785844,
+          30.7389017
+        ]
+      },
+      "id": "way/129774478"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/798339295",
+        "amenity": "police",
+        "building": "yes",
+        "name": "Police Station South",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7642758,
+          30.7200608
+        ]
+      },
+      "id": "way/798339295"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2210744197",
+        "amenity": "police",
+        "name": "Police Station, Sector 39"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7264111,
+          30.7451963
+        ]
+      },
+      "id": "node/2210744197"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4368256599",
+        "amenity": "police",
+        "name": "Police Station Palsora",
+        "name:en": "Police Station Palsora"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7162063,
+          30.7394399
+        ]
+      },
+      "id": "node/4368256599"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10816156127",
+        "amenity": "police",
+        "name": "Government Railway Police Station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8194157,
+          30.7035222
+        ]
+      },
+      "id": "node/10816156127"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12597169486",
+        "addr:city": "Chandigarh",
+        "addr:district": "CHANDIGARH",
+        "addr:housenumber": "PQ2H+9H6, 31C, Sector 31, Chandigarh, 160030",
+        "addr:postcode": "160030",
+        "addr:street": "Purv Marg",
+        "amenity": "police",
+        "name": "Police Station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7789014,
+          30.7008456
+        ]
+      },
+      "id": "node/12597169486"
+    }
+  ]
+}

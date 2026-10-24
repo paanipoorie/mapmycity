@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-24T01:57:36Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4454923994",
+        "name": "Nik Baker's",
+        "name:en": "Nik Baker's",
+        "opening_hours": "24/7",
+        "shop": "bakery"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7610617,
+          30.7223832
+        ]
+      },
+      "id": "node/4454923994"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6612932361",
+        "name": "24 Seven",
+        "opening_hours": "24/7",
+        "shop": "convenience"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.758515,
+          30.7206041
+        ]
+      },
+      "id": "node/6612932361"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6975339939",
+        "name": "24Seven",
+        "opening_hours": "24/7",
+        "shop": "convenience"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7999596,
+          30.7366559
+        ]
+      },
+      "id": "node/6975339939"
+    }
+  ]
+}

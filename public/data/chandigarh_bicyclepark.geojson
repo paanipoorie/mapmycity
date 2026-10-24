@@ -1,0 +1,71 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-24T01:59:36Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/129720796",
+        "amenity": "bicycle_parking",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8102463,
+          30.7440155
+        ]
+      },
+      "id": "way/129720796"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4461158891",
+        "amenity": "bicycle_parking",
+        "covered": "yes",
+        "operator": "Basement bike parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7450121,
+          30.7161408
+        ]
+      },
+      "id": "node/4461158891"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11897117518",
+        "amenity": "bicycle_parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8037013,
+          30.752723
+        ]
+      },
+      "id": "node/11897117518"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11898906072",
+        "amenity": "bicycle_parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8114608,
+          30.7365677
+        ]
+      },
+      "id": "node/11898906072"
+    }
+  ]
+}
