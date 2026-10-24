@@ -2,12 +2,14 @@ import React from 'react';
 
 interface HeaderProps {
   buildingCount: number | null;
+  blockCount: number | null;
   isLoading: boolean;
   onResetView: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   buildingCount,
+  blockCount,
   isLoading,
   onResetView,
 }) => {
@@ -15,11 +17,11 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="hud-panel top-left" aria-label="Map Overview">
       <div className="brand-group">
         <h1 className="brand-title">MapMyCity</h1>
-        <span className="phase-pill">Chandigarh 3D</span>
+        <span className="phase-pill">Phase 2: Blocks</span>
       </div>
 
       <p className="hud-description">
-        Interactive 3D building extrusions derived from OpenStreetMap geometry.
+        Road-bounded urban blocks with profile-specific feature density gradients.
       </p>
 
       <div className="hud-meta">
@@ -30,10 +32,10 @@ export const Header: React.FC<HeaderProps> = ({
           />
           <span className="status-text">
             {isLoading
-              ? 'Loading building geometry...'
-              : buildingCount !== null
-                ? `${buildingCount.toLocaleString()} buildings rendered`
-                : '3D buildings ready'}
+              ? 'Loading city blocks & buildings...'
+              : blockCount !== null
+                ? `${blockCount.toLocaleString()} blocks · ${buildingCount !== null ? buildingCount.toLocaleString() : '14,407'} buildings`
+                : 'Urban blocks ready'}
           </span>
         </div>
 

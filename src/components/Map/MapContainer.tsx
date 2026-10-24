@@ -16,14 +16,23 @@ import {
   INITIAL_BEARING,
   DARK_BASE_STYLE_URL,
   FALLBACK_DARK_STYLE,
-  GEOJSON_DATA_URL,
+  BUILDINGS_GEOJSON_DATA_URL,
+  BLOCKS_GEOJSON_DATA_URL,
   BUILDINGS_SOURCE_ID,
   BUILDINGS_LAYER_ID,
+  BLOCKS_SOURCE_ID,
+  BLOCKS_FILL_LAYER_ID,
+  BLOCKS_LINE_LAYER_ID,
   BUILDING_HEIGHT_EXPRESSION,
   BUILDING_COLOR_EXPRESSION,
+  getBlockFillColorExpression,
+  getBlockFillOpacityExpression,
+  getBlockLineColorExpression,
 } from '../../config/mapConfig.ts';
-import type { MapError } from '../../types/map.ts';
+import type { MapError, AppMode, UserProfile } from '../../types/map.ts';
 import { Header } from '../UI/Header.tsx';
+import { ControlBar } from '../UI/ControlBar.tsx';
+import { Legend } from '../UI/Legend.tsx';
 import { ErrorNotice } from '../UI/ErrorNotice.tsx';
 
 // Configure MapLibre Web Worker URL for Vite bundling
@@ -50,13 +59,24 @@ export const MapContainer: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [buildingCount, setBuildingCount] = useState<number | null>(null);
+  const [blockCount, setBlockCount] = useState<number | null>(null);
+
+  // App mode and user profile state
+  const [mode, setMode] = useState<AppMode>('block');
+  const [activeProfile, setActiveProfile] = useState<UserProfile>('bicycle');
+  const profileRef = useRef<UserProfile>(activeProfile);
+
+  useEffect(() => {
+    profileRef.current = activeProfile;
+  }, [activeProfile]);
+
   const [error, setError] = useState<MapError | null>(() => {
     if (!isWebGLSupported()) {
       return {
         type: 'webgl',
         title: 'WebGL Not Supported',
         message:
-          'Your browser or device does not support WebGL, which is required for 3D map extrusions.',
+          'Your browser or device does not support WebGL, which is required for 3D map extrusions and vector block rendering.',
       };
     }
     return null;
@@ -80,6 +100,33 @@ export const MapContainer: React.FC = () => {
     setIsLoading(true);
     setRetryCount((prev) => prev + 1);
   }, []);
+
+  // Update map layer paint properties when active profile changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    if (map.getLayer(BLOCKS_FILL_LAYER_ID)) {
+      map.setPaintProperty(
+        BLOCKS_FILL_LAYER_ID,
+        'fill-color',
+        getBlockFillColorExpression(activeProfile)
+      );
+      map.setPaintProperty(
+        BLOCKS_FILL_LAYER_ID,
+        'fill-opacity',
+        getBlockFillOpacityExpression(activeProfile)
+      );
+    }
+
+    if (map.getLayer(BLOCKS_LINE_LAYER_ID)) {
+      map.setPaintProperty(
+        BLOCKS_LINE_LAYER_ID,
+        'line-color',
+        getBlockLineColorExpression(activeProfile)
+      );
+    }
+  }, [activeProfile]);
 
   useEffect(() => {
     if (!mapContainerRef.current || !isWebGLSupported()) return;
@@ -140,7 +187,6 @@ export const MapContainer: React.FC = () => {
       map.on('error', (e: ErrorEvent) => {
         if (!isMounted) return;
 
-        // Distinguish fatal style / source failures from transient tile misses
         const msg = e.error?.message || '';
         const isTransientTileError =
           msg.includes('status 404') ||
@@ -149,7 +195,6 @@ export const MapContainer: React.FC = () => {
 
         if (!isTransientTileError && !map?.getSource(BUILDINGS_SOURCE_ID)) {
           console.error('MapLibre error:', e);
-          // If external style fails, try falling back to local dark style
           if (map) {
             console.warn('Attempting fallback to local dark style...');
             map.setStyle(FALLBACK_DARK_STYLE);
@@ -157,7 +202,7 @@ export const MapContainer: React.FC = () => {
         }
       });
 
-      // Once base map style is loaded, load local GeoJSON buildings
+      // Once base map style is loaded, load GeoJSON blocks & buildings
       map.on('load', async () => {
         if (!isMounted || !map) return;
 
@@ -175,15 +220,30 @@ export const MapContainer: React.FC = () => {
         });
 
         try {
-          const res = await fetch(GEOJSON_DATA_URL);
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          // Fetch blocks and 3D buildings concurrently
+          const [blocksRes, buildingsRes] = await Promise.all([
+            fetch(BLOCKS_GEOJSON_DATA_URL),
+            fetch(BUILDINGS_GEOJSON_DATA_URL),
+          ]);
+
+          if (!blocksRes.ok) {
+            throw new Error(`Failed to load blocks: HTTP ${blocksRes.status}`);
           }
-          const geojsonData = await res.json();
+          if (!buildingsRes.ok) {
+            throw new Error(`Failed to load buildings: HTTP ${buildingsRes.status}`);
+          }
+
+          const [blocksData, buildingsData] = await Promise.all([
+            blocksRes.json(),
+            buildingsRes.json(),
+          ]);
+
           if (!isMounted) return;
 
+          setBlockCount(blocksData.features.length);
+
           // Count valid building polygon features
-          const count = geojsonData.features.reduce(
+          const bCount = buildingsData.features.reduce(
             (
               acc: number,
               f: {
@@ -204,43 +264,89 @@ export const MapContainer: React.FC = () => {
             },
             0
           );
-          setBuildingCount(count);
+          setBuildingCount(bCount);
 
-          // Add building GeoJSON source
-          if (!map.getSource(BUILDINGS_SOURCE_ID)) {
-            map.addSource(BUILDINGS_SOURCE_ID, {
+          // Find first symbol layer to insert custom data below street labels
+          const firstSymbolId = map
+            .getStyle()
+            .layers?.find((l) => l.type === 'symbol')?.id;
+
+          // 1. Add Blocks Source & Layers (ground plane)
+          if (!map.getSource(BLOCKS_SOURCE_ID)) {
+            map.addSource(BLOCKS_SOURCE_ID, {
               type: 'geojson',
-              data: geojsonData,
+              data: blocksData,
             });
           }
 
-          // Add 3D building extrusion layer
-          if (!map.getLayer(BUILDINGS_LAYER_ID)) {
-            map.addLayer({
-              id: BUILDINGS_LAYER_ID,
-              type: 'fill-extrusion',
-              source: BUILDINGS_SOURCE_ID,
-              filter: ['all', ['==', '$type', 'Polygon'], ['has', 'building']],
-              paint: {
-                'fill-extrusion-color': BUILDING_COLOR_EXPRESSION,
-                'fill-extrusion-height': BUILDING_HEIGHT_EXPRESSION,
-                'fill-extrusion-base': 0,
-                'fill-extrusion-opacity': 0.88,
-                'fill-extrusion-vertical-gradient': true,
+          if (!map.getLayer(BLOCKS_FILL_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: BLOCKS_FILL_LAYER_ID,
+                type: 'fill',
+                source: BLOCKS_SOURCE_ID,
+                paint: {
+                  'fill-color': getBlockFillColorExpression(profileRef.current),
+                  'fill-opacity': getBlockFillOpacityExpression(profileRef.current),
+                },
               },
+              firstSymbolId
+            );
+          }
+
+          if (!map.getLayer(BLOCKS_LINE_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: BLOCKS_LINE_LAYER_ID,
+                type: 'line',
+                source: BLOCKS_SOURCE_ID,
+                paint: {
+                  'line-color': getBlockLineColorExpression(profileRef.current),
+                  'line-width': 0.85,
+                  'line-opacity': 0.65,
+                },
+              },
+              firstSymbolId
+            );
+          }
+
+          // 2. Add 3D Building Extrusion Source & Layer (elevated plane)
+          if (!map.getSource(BUILDINGS_SOURCE_ID)) {
+            map.addSource(BUILDINGS_SOURCE_ID, {
+              type: 'geojson',
+              data: buildingsData,
             });
+          }
+
+          if (!map.getLayer(BUILDINGS_LAYER_ID)) {
+            map.addLayer(
+              {
+                id: BUILDINGS_LAYER_ID,
+                type: 'fill-extrusion',
+                source: BUILDINGS_SOURCE_ID,
+                filter: ['all', ['==', '$type', 'Polygon'], ['has', 'building']],
+                paint: {
+                  'fill-extrusion-color': BUILDING_COLOR_EXPRESSION,
+                  'fill-extrusion-height': BUILDING_HEIGHT_EXPRESSION,
+                  'fill-extrusion-base': 0,
+                  'fill-extrusion-opacity': 0.88,
+                  'fill-extrusion-vertical-gradient': true,
+                },
+              },
+              firstSymbolId
+            );
           }
 
           setIsLoading(false);
         } catch (dataErr: unknown) {
           if (!isMounted) return;
-          console.error('GeoJSON loading error:', dataErr);
+          console.error('Data loading error:', dataErr);
           const message =
             dataErr instanceof Error ? dataErr.message : String(dataErr);
           setError({
             type: 'data',
-            title: 'Failed to Load Chandigarh Building Data',
-            message: `Could not load ${GEOJSON_DATA_URL}. Check file existence and format.`,
+            title: 'Failed to Load Chandigarh Map Layers',
+            message: 'Could not load GeoJSON block or building geometries.',
             details: message,
           });
           setIsLoading(false);
@@ -274,9 +380,19 @@ export const MapContainer: React.FC = () => {
     <div className="map-view-wrapper">
       <Header
         buildingCount={buildingCount}
+        blockCount={blockCount}
         isLoading={isLoading}
         onResetView={resetCamera}
       />
+
+      <ControlBar
+        mode={mode}
+        onModeChange={setMode}
+        profile={activeProfile}
+        onProfileChange={setActiveProfile}
+      />
+
+      <Legend profile={activeProfile} totalBlocks={blockCount} />
 
       {error && <ErrorNotice error={error} onRetry={handleRetry} />}
 
@@ -284,7 +400,7 @@ export const MapContainer: React.FC = () => {
         ref={mapContainerRef}
         className="map-gl-container"
         role="region"
-        aria-label="3D Base Map of Chandigarh"
+        aria-label="3D Base Map of Chandigarh with Urban Block Gradients"
       />
     </div>
   );

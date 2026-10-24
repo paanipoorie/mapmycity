@@ -282,3 +282,40 @@ No files were modified. No datasets were downloaded or substituted.
   - 0 console errors, 0 network failures. Verified camera animation and zoom controls.
   - TypeScript build (`tsc -b && vite build`) and ESLint (`eslint .`) clean with 0 warnings/errors.
 
+## 12. Phase 2 Implementation & Verification Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete. Phase 2: Block Generation and Profile Gradients.
+- **Urban Block Generation Pipeline:**
+  - Script: `scripts/generate-blocks.mjs` (registered as `npm run generate-blocks` in `package.json`). Fully reproducible and deterministic.
+  - Planar graph constructed from 11,858 OpenStreetMap highway lines (46,084 snapped nodes at ~1 cm precision, 53,063 split edges).
+  - Traced directed cycles yielding **7,098 interior faces** (Phase 0 initial baseline).
+- **Block Filtering & Geometric Validation:**
+  - **Nesting / Enclosure Filtering:** Identified and removed 72 large enclosing/outer faces that encircled smaller sub-faces using verified interior test points. This resolved the Phase 0 163% area overlap and yielded 7,026 atomic faces.
+  - **Sliver Removal:** Filtered faces with area < 0.001 km² (1,000 m²), eliminating roundabout centers, median strips, and junction slivers.
+  - **Superblock Removal:** Filtered peripheral faces with area > 0.5 km² (500,000 m²).
+  - **Boundary Clipping:** Clipped to official Chandigarh sector coverage (`chandigarh_sector.geojson`), ensuring all retained blocks have verified interior coordinates within Chandigarh administrative sectors.
+  - **Polygons After Filtering:** Exactly **4,433 valid, non-overlapping urban blocks** (total area 48.55 km², covering 77.8% of the sector area; remainder comprises wide road boulevards, medians, and major right-of-ways).
+  - **Validation checks:** 0 unclosed rings, 0 coordinate anomalies, 0 duplicate geometries, and **0 residual nesting** among the 4,433 filtered blocks.
+- **Feature Assignment to Blocks:**
+  - Spatial assignment performed via spatial hash grid (`findBlockForPoint` via ray casting point-in-polygon; line segment midpoint and endpoint length-weighted assignment).
+  - **Wheelchair Profile:** 354 blocks with mapped features. Mapped pedestrian footways/sidewalks (755 lines from `chandigarh_pedestrian.geojson`) + explicit wheelchair accessibility tags/ramps (from `chandigarh_accessibility.geojson`).
+  - **Bicycle Profile:** 569 blocks with mapped features. Dedicated cycleways (12 lines from `chandigarh_cycleways.geojson` + 807 cycle-track road segments from `chandigarh_osm.geojson`) + 4 verified bicycle parking points (`chandigarh_bicyclepark.geojson`).
+  - **Night Profile:** 61 blocks with mapped features. 67 hospitals (`chandigarh_hospitals.geojson`) + 8 police stations (`chandigarh_police.geojson`) + 4 verified 24/7 convenience stores (`chandigarh_24shops.geojson` + OSM 24/7 commercial feature).
+- **Density Measures & Normalization:**
+  - Density formulas per unit area (km²):
+    - `night_density = night_features_count / area_km2` (services/km²)
+    - `bicycle_density = (cycleway_length_km + bicycle_parking_count) / area_km2` (score/km²)
+    - `wheelchair_density = (pedestrian_length_km + wheelchair_tags_count) / area_km2` (features/km²)
+  - Calibrated 5-tier classification (Tier 0: None [0]; Tier 1: Low; Tier 2: Moderate; Tier 3: High; Tier 4: Very High) mapped to distinct chromatic gradients inspired by Blockprint.
+  - Prominent UI disclaimer: Gradient represents mapped feature density in OpenStreetMap, not overall safety, quality, or accessibility.
+- **UI & Interaction:**
+  - Added Mode Selector: Block (active) vs Path (disabled, marked "Phase 4").
+  - Added Profile Selector: Wheelchair, Bicycle, Night controls that instantly update MapLibre layer paint properties (`fill-color`, `fill-opacity`, `line-color`) on `chandigarh-blocks-fill` and `chandigarh-blocks-outline`.
+  - Added Dynamic Legend: Profile-specific gradient swatch bar, tier range values, units, feature count summary, and data disclaimer.
+  - Preserved 3D building extrusions (`chandigarh-buildings-3d`), camera settings, dark basemap, metric scale, nav controls, attribution, error handling, and Reset Camera button.
+- **Browser & Quality Verification:**
+  - Lint: `npm run lint` clean (0 errors, 0 warnings).
+  - Build: `npm run build` clean (TypeScript + Vite production bundle).
+  - Browser tests: Verified via Playwright at `http://127.0.0.1:5199/` with 0 console errors and 0 network failures. Profile transitions (Wheelchair, Bicycle, Night), gradient update, and Reset Camera verified.
+
+

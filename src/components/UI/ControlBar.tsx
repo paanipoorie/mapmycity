@@ -1,0 +1,86 @@
+import React from 'react';
+import type { AppMode, UserProfile } from '../../types/map.ts';
+import { PROFILE_CONFIGS } from '../../config/mapConfig.ts';
+
+interface ControlBarProps {
+  mode: AppMode;
+  onModeChange: (mode: AppMode) => void;
+  profile: UserProfile;
+  onProfileChange: (profile: UserProfile) => void;
+}
+
+export const ControlBar: React.FC<ControlBarProps> = ({
+  mode,
+  onModeChange,
+  profile,
+  onProfileChange,
+}) => {
+  const profiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
+
+  return (
+    <nav className="control-bar-panel" aria-label="Map Mode and Profile Controls">
+      {/* Mode Selector */}
+      <div className="control-section">
+        <span className="control-section-label">Mode</span>
+        <div className="segmented-control" role="tablist" aria-label="Map Mode">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'block'}
+            className={`control-tab-btn ${mode === 'block' ? 'active' : ''}`}
+            onClick={() => onModeChange('block')}
+          >
+            <span className="tab-indicator-dot" aria-hidden="true" />
+            Block
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'path'}
+            disabled
+            className="control-tab-btn disabled"
+            title="Path routing network mode arrives in Phase 4"
+            aria-disabled="true"
+          >
+            Path
+            <span className="sub-badge">Phase 4</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="control-divider" aria-hidden="true" />
+
+      {/* Profile Selector */}
+      <div className="control-section">
+        <span className="control-section-label">Profile</span>
+        <div className="segmented-control" role="tablist" aria-label="User Profile">
+          {profiles.map((p) => {
+            const conf = PROFILE_CONFIGS[p];
+            const isActive = profile === p;
+            return (
+              <button
+                key={p}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`control-tab-btn profile-btn ${p} ${isActive ? 'active' : ''}`}
+                onClick={() => onProfileChange(p)}
+                style={
+                  isActive
+                    ? ({
+                        '--profile-accent': conf.accentColor,
+                        '--profile-border': conf.outlineColor,
+                      } as React.CSSProperties)
+                    : undefined
+                }
+              >
+                <span className="profile-label">{conf.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
+  );
+};
