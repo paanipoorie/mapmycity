@@ -486,3 +486,34 @@ No files were modified. No datasets were downloaded or substituted.
   - Data sparsity: OSM tags for accessibility (`kerb`, `tactile_paving`, `barrier`) remain 0 in source datasets for Chandigarh. Wheelchair routing can only prioritize mapped walkways and avoid stairs, but cannot verify sidewalk smoothness or curb ramps.
   - Disconnected sidewalk fragments: 80% of sidewalk endpoints do not touch road centerlines in OSM. Routing therefore runs on the unified street and path network rather than isolated sidewalk geometry.
   - Night safety: proximity to 24/7 services and lighting is an urban feature proxy, not a real-time safety index.
+
+## 15. Post-Phase 5 Visual Regression Fix Record (Completed 2026-10-24)
+
+- **Milestone status:** Complete. Commit `e956e27` ("fix(map): resolve profile layer visibility and block gradient regression on profile switch").
+- **Incident Description:**
+  - In Block mode, switching between profiles (Wheelchair, Bicycle, Night) failed to update the block density gradient colors and profile-specific infrastructure linework/markers, appearing to freeze on one profile or hide thematic overlays.
+- **Root Cause Analysis:**
+  - In `src/components/Map/MapContainer.tsx`, the reactive `useEffect` hooks governing profile updates and mode transitions evaluated `if (!map || !map.isStyleLoaded()) return;`.
+  - In MapLibre GL JS, `map.isStyleLoaded()` returns `false` whenever background vector basemap tiles, font glyphs, or sprite assets are actively being loaded or rendered over the network.
+  - Consequently, whenever the user toggled the profile in `ControlBar`, the effect aborted before calling `setPaintProperty` and `setLayoutProperty`. Map layers remained locked to initial states, preventing new profile markers/lines from becoming visible and failing to swap block choropleth color gradients.
+- **Resolution Implemented:**
+  - Created a robust synchronization helper `syncProfileLayers(profile: UserProfile, currentMode: AppMode)` that guards on `if (!map) return;` and authoritatively inspects layer existence via `if (map.getLayer(layerId))` rather than relying on `isStyleLoaded()`.
+  - Layer synchronization updates:
+    - Block fill color expression: `getBlockFillColorExpression(profile)`
+    - Block fill opacity: `getBlockFillOpacityExpression(profile, currentMode)`
+    - Block outline stroke: `getBlockLineColorExpression(profile)`
+    - Route line accent color: `PROFILE_CONFIGS[profile].accentColor`
+    - All profile overlay layers: `PROFILE_LAYERS[p]` toggled to `'visible'` for active profile and `'none'` for all inactive profiles (clearing stale markers).
+  - Wired `syncProfileLayers` to the `activeProfile` reactive effect and directly inside `map.on('load')` after layer registration.
+  - Removed `!map.isStyleLoaded()` checks from `renderRouteOnMap` and the mode-switch effect.
+- **Verification Results:**
+  - **Linting & Compilation:**
+    - `npm run lint`: 0 errors, 0 warnings.
+    - `npm run build`: Production client bundle built in 363ms with zero errors.
+  - **Live Browser Verification (Playwright MCP):**
+    - **Wheelchair Profile:** Verified active emerald/teal 5-tier gradient (`#114b5f` → `#02c39a`), pedestrian paths (`#00c49f`), steps/stairs (`#f43f5e`), and wheelchair point markers visible; bicycle and night overlays hidden.
+    - **Bicycle Profile:** Verified instantaneous switch to warm amber 5-tier gradient (`#5e3a09` → `#fbbf24`), corridor tracks (`#f59e0b`), dedicated cycleways (`#fbbf24`), and bicycle parking markers visible; wheelchair and night overlays hidden.
+    - **Night Profile:** Verified instantaneous switch to violet/purple 5-tier gradient (`#3c1b63` → `#c084fc`), hospital markers (`#ef4444`), police markers (`#3b82f6`), and 24/7 store markers (`#c084fc`) visible; wheelchair and bicycle overlays hidden.
+    - **Interactive Popups:** Verified click popups open with accurate metadata and styling (e.g. Deep Hospital, emergency status, source provenance).
+    - **Path Mode Routing:** Tested landmark routing across all 3 profiles; verified dynamic route recalculation, segment breakdown updates, and profile accent styling (`#00c49f`, `#f59e0b`, `#a855f7`).
+    - **Screenshots:** Refreshed `references/screenshots/phase5_block_wheelchair.png`, `references/screenshots/phase5_block_bicycle.png`, and `references/screenshots/phase5_block_night.png`.
