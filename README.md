@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="/public/favicon.svg" alt="MapMyCity Logo" width="96" height="96" />
+  <img src="public/favicon.svg" alt="MapMyCity Logo" width="96" height="96" />
 
   # MapMyCity
 
@@ -15,11 +15,18 @@
 
   [Overview](#overview) •
   [Key Features](#key-features) •
+  [Visual Showcase](#interface--visual-showcase) •
   [Profiles & Personas](#profiles--personas) •
   [Architecture](#architecture--technical-stack) •
   [Routing Algorithm](#client-side-routing-engine) •
   [Getting Started](#getting-started) •
   [Data Provenance](#data-provenance--audit)
+
+  <br />
+
+  <p align="center">
+    <img src="public/snapshots/wheelchair_path.png" alt="MapMyCity Path Routing Interface" width="100%" style="border-radius: 8px;" />
+  </p>
 
 </div>
 
@@ -67,28 +74,28 @@ MapMyCity tailors cartography and routing dynamically across three distinct prof
 
 ---
 
-## UI Screenshots
+## Interface & Visual Showcase
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center"><b>Wheelchair Profile — Block Density</b></td>
-      <td align="center"><b>Bicycle Profile — Path Routing</b></td>
-    </tr>
-    <tr>
-      <td><img src="public/snapshots/wheelchair_block.png" alt="Wheelchair Block Mode" width="450" /></td>
-      <td><img src="public/snapshots/wheelchair_path.png" alt="Wheelchair Path Routing" width="450" /></td>
-    </tr>
-    <tr>
-      <td align="center"><b>Night Profile — Emergency Corridors</b></td>
-      <td align="center"><b>Responsive Mobile Layout</b></td>
-    </tr>
-    <tr>
-      <td><img src="public/snapshots/night_block.png" alt="Night Block Mode" width="450" /></td>
-      <td><img src="references/screenshots/phase5_mobile_path.png" alt="Mobile Routing View" width="450" /></td>
-    </tr>
-  </table>
-</div>
+### 1. 3D Urban Blocks & Density Gradients (Block Mode)
+> Dynamic choropleth tiles representing feature density across 4,433 urban blocks, combined with 14,407 3D building extrusions and clickable OpenStreetMap inspection cards.
+
+<p align="center">
+  <img src="public/snapshots/wheelchair_block.png" alt="Wheelchair Profile - Block Density and 3D Extrusions" width="100%" style="border-radius: 8px;" />
+</p>
+
+### 2. Client-Side Topological Routing (Path Mode)
+> Point-and-click route planning with sub-millisecond road snapping, obstacle avoidance (stairs penalty), legal one-way enforcement, and complete highway segment breakdown.
+
+<p align="center">
+  <img src="public/snapshots/wheelchair_path.png" alt="Path Mode - Client-Side Topological Routing" width="100%" style="border-radius: 8px;" />
+</p>
+
+### 3. Night Transit & Emergency Corridor Coverage
+> Prioritizing 126 mapped illuminated street segments and corridors within 150m of 24/7 hospitals, police stations, and verified round-the-clock convenience stores.
+
+<p align="center">
+  <img src="public/snapshots/night_block.png" alt="Night Transit Profile - Emergency Services & Lighting" width="100%" style="border-radius: 8px;" />
+</p>
 
 ---
 
