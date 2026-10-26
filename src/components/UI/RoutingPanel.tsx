@@ -3,10 +3,8 @@ import type {
   UserProfile,
   RouteEndpoint,
   RouteResult,
-  RoutingPreset,
 } from '../../types/map.ts';
 import { PROFILE_CONFIGS } from '../../config/mapConfig.ts';
-import { ROUTING_PRESETS } from '../../services/routing/presets.ts';
 
 interface RoutingPanelProps {
   profile: UserProfile;
@@ -18,7 +16,6 @@ interface RoutingPanelProps {
   onClearDest: () => void;
   onClearAll: () => void;
   onReverseEndpoints: () => void;
-  onSelectPreset: (preset: RoutingPreset, target: 'start' | 'dest') => void;
   routeResult: RouteResult | null;
   isCalculating: boolean;
   snapNotice?: string | null;
@@ -34,7 +31,6 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
   onClearDest,
   onClearAll,
   onReverseEndpoints,
-  onSelectPreset,
   routeResult,
   isCalculating,
   snapNotice,
@@ -217,37 +213,6 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
       {/* Snap Notice Alert */}
       {snapNotice && <div className="routing-notice-box">{snapNotice}</div>}
 
-      {/* Presets Quick Picker */}
-      <div className="presets-section">
-        <div className="presets-header">
-          <span className="presets-title">Quick Landmarks</span>
-          <span className="presets-hint">Tap to set as Dest</span>
-        </div>
-        <div className="preset-chips-scroll" role="list">
-          {ROUTING_PRESETS.map((preset) => {
-            const isAffinity = preset.profileAffinity === profile;
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                className={`preset-chip ${isAffinity ? 'affinity' : ''}`}
-                onClick={() => {
-                  if (!startPoint) {
-                    onSelectPreset(preset, 'start');
-                  } else {
-                    onSelectPreset(preset, 'dest');
-                  }
-                }}
-                title={`${preset.name} (${preset.sector}): ${preset.description}`}
-              >
-                <span className="preset-name">{preset.name}</span>
-                <span className="preset-sector">{preset.sector}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Route Calculation State / Result */}
       {isCalculating && (
         <div className="routing-status-loading">
@@ -407,13 +372,13 @@ export const RoutingPanel: React.FC<RoutingPanelProps> = ({
         <div className="routing-prompt-hint">
           {!startPoint && !destPoint && (
             <p>
-              Click anywhere on the map or tap a preset above to set the{' '}
+              Click anywhere on the map to set the{' '}
               <strong>Start Point (A)</strong>.
             </p>
           )}
           {startPoint && !destPoint && (
             <p>
-              Now click on the map or choose a preset to set the{' '}
+              Now click on the map to set the{' '}
               <strong>Destination (B)</strong>.
             </p>
           )}

@@ -50,24 +50,21 @@
   margin-bottom: 6px;
 }
 
+.brand-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
 .brand-title {
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
   margin: 0;
-}
-
-.phase-pill {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 2px 7px;
-  border-radius: 9999px;
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--accent-cyan);
-  border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
 .hud-description {
@@ -97,11 +94,6 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-}
-
-.status-dot.active {
-  background-color: var(--status-active);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
 .status-dot.pulsing {
@@ -230,13 +222,6 @@
   color: #ffffff;
   border: 1px solid var(--profile-border, rgba(255, 255, 255, 0.25));
   box-shadow: 0 0 10px var(--profile-border, transparent);
-}
-
-.tab-indicator-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--status-active);
 }
 
 .sub-badge {
@@ -438,13 +423,13 @@
 .legend-feature-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 10px;
 }
 
 .feature-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   padding: 4px 6px;
   border-radius: 5px;
@@ -457,7 +442,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 3px;
   flex-shrink: 0;
 }
 
@@ -483,19 +467,8 @@
   display: inline-block;
 }
 
-.feature-info-col {
-  flex: 1;
-  min-width: 0;
-}
-
-.feature-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
 .feature-label {
+  flex: 1;
   font-size: 0.73rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -510,14 +483,7 @@
   background: rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 1px 6px;
-}
-
-.feature-note {
-  display: block;
-  font-size: 0.66rem;
-  color: var(--text-muted);
-  line-height: 1.3;
-  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 /* MapLibre Custom Popups */
@@ -794,12 +760,6 @@
    Phase 4: Path Mode & Routing Panel Styles
    ========================================================================== */
 
-.phase-pill.path-active {
-  background: rgba(16, 185, 129, 0.14);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.35);
-}
-
 .routing-hud-panel {
   position: absolute;
   top: 165px;
@@ -1048,85 +1008,6 @@
   line-height: 1.35;
   padding: 6px 10px;
   border-radius: 6px;
-}
-
-/* Presets Section */
-.presets-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.presets-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.presets-title {
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
-.presets-hint {
-  font-size: 0.66rem;
-  color: var(--text-secondary);
-}
-
-.preset-chips-scroll {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.preset-chips-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-.preset-chips-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
-}
-
-.preset-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 6px;
-  padding: 4px 8px;
-  transition: all 0.15s ease;
-  text-align: left;
-}
-
-.preset-chip:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.preset-chip.affinity {
-  border-color: rgba(56, 189, 248, 0.35);
-  background: rgba(56, 189, 248, 0.08);
-}
-
-.preset-chip .preset-name {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  max-width: 140px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preset-chip .preset-sector {
-  font-size: 0.64rem;
-  color: var(--text-muted);
 }
 
 /* Status Loading */

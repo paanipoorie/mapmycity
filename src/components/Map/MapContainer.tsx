@@ -69,7 +69,6 @@ import type {
   UserProfile,
   RouteEndpoint,
   RouteResult,
-  RoutingPreset,
 } from '../../types/map.ts';
 import { Header } from '../UI/Header.tsx';
 import { ControlBar } from '../UI/ControlBar.tsx';
@@ -1478,28 +1477,6 @@ export const MapContainer: React.FC = () => {
     setDestPoint(tempStart);
   }, [startPoint, destPoint]);
 
-  const handleSelectPreset = useCallback(
-    (preset: RoutingPreset, target: 'start' | 'dest') => {
-      const snap = networkRef.current.snapPoint(
-        preset.coordinates[0],
-        preset.coordinates[1]
-      );
-      const ep: RouteEndpoint = {
-        coordinates: preset.coordinates,
-        name: preset.name,
-        snappedPoint: snap ? snap.coordinates : preset.coordinates,
-        snapDistanceMeters: snap ? snap.distanceMeters : 0,
-      };
-
-      if (target === 'start') {
-        setStartPoint(ep);
-      } else {
-        setDestPoint(ep);
-      }
-    },
-    []
-  );
-
   return (
     <div className={`map-view-wrapper mode-${mode}`}>
       <Header
@@ -1532,7 +1509,6 @@ export const MapContainer: React.FC = () => {
           onClearDest={handleClearDest}
           onClearAll={handleClearAll}
           onReverseEndpoints={handleReverseEndpoints}
-          onSelectPreset={handleSelectPreset}
           routeResult={routeResult}
           isCalculating={isCalculating}
           snapNotice={snapNotice}

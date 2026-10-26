@@ -93,7 +93,7 @@ export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks, mode = 'bl
           {/* Profile Feature Markers & Linework */}
           {conf.markerLegend && conf.markerLegend.length > 0 && (
             <div className="legend-features-section">
-              <div className="legend-subheading">Mapped Markers & Linework</div>
+              <div className="legend-subheading">Mapped Markers</div>
               <div className="legend-feature-list" role="list">
                 {conf.markerLegend.map((item) => (
                   <div key={item.id} className="feature-row" role="listitem">
@@ -120,19 +120,12 @@ export const Legend: React.FC<LegendProps> = ({ profile, totalBlocks, mode = 'bl
                         />
                       )}
                     </div>
-                    <div className="feature-info-col">
-                      <div className="feature-title-row">
-                        <span className="feature-label">{item.label}</span>
-                        {item.count !== undefined && (
-                          <span className="feature-count-badge">
-                            {item.count}
-                          </span>
-                        )}
-                      </div>
-                      {item.note && (
-                        <span className="feature-note">{item.note}</span>
-                      )}
-                    </div>
+                    <span className="feature-label">{item.label}</span>
+                    {item.count !== undefined && (
+                      <span className="feature-count-badge">
+                        {item.count}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

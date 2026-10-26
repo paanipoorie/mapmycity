@@ -31,7 +31,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             onClick={() => onModeChange('block')}
             title="Block mode: urban blocks colored by feature density gradient"
           >
-            <span className="tab-indicator-dot" aria-hidden="true" />
             Block
           </button>
 
@@ -43,7 +42,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             onClick={() => onModeChange('path')}
             title="Path mode: network routing with profile-specific preferences"
           >
-            <span className="tab-indicator-dot" aria-hidden="true" />
             Path
           </button>
         </div>

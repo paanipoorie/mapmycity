@@ -19,10 +19,14 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="hud-panel top-left" aria-label="Map Overview">
       <div className="brand-group">
+        <img
+          src="/favicon.svg"
+          alt="MapMyCity logo"
+          className="brand-logo"
+          width="26"
+          height="26"
+        />
         <h1 className="brand-title">MapMyCity</h1>
-        <span className={`phase-pill ${mode === 'path' ? 'path-active' : ''}`}>
-          {mode === 'path' ? 'Path Mode: Network Routing' : 'Block Mode: 3D City & Density'}
-        </span>
       </div>
 
       <p className="hud-description">
@@ -33,10 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="hud-meta">
         <div className="status-indicator">
-          <span
-            className={`status-dot ${isLoading ? 'pulsing' : 'active'}`}
-            aria-hidden="true"
-          />
           <span className="status-text">
             {isLoading
               ? 'Loading city network & blocks...'
