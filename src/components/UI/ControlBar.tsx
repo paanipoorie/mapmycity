@@ -7,7 +7,6 @@ interface ControlBarProps {
   onModeChange: (mode: AppMode) => void;
   profile: UserProfile;
   onProfileChange: (profile: UserProfile) => void;
-  onOpenRecommendation?: () => void;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({
@@ -15,7 +14,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   onModeChange,
   profile,
   onProfileChange,
-  onOpenRecommendation,
 }) => {
   const profiles: UserProfile[] = ['wheelchair', 'bicycle', 'night'];
 
@@ -83,20 +81,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           })}
         </div>
       </div>
-
-      <div className="control-divider" aria-hidden="true" />
-
-      {/* Antigravity AI Recommendation Button */}
-      <button
-        type="button"
-        className="ai-recommendation-trigger-btn"
-        onClick={onOpenRecommendation}
-        title="Antigravity AI Travel Recommendation"
-        aria-label="Antigravity AI Travel Recommendation"
-      >
-        <span className="ai-sparkle-anim" aria-hidden="true">✨</span>
-        <span className="ai-btn-text">AI Advice</span>
-      </button>
     </nav>
   );
 };
